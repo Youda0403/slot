@@ -156,7 +156,7 @@ header p,.status,.stage .hint{color:var(--ink)}
         <details class="panel" id="panelA" open>
           <summary><h2><span class="dot" id="dotA"></span>캐릭터 A</h2><span class="sum" id="sumA"></span></summary>
           <div class="panel-body">
-          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="aName" value="하루" maxlength="16"></label>
+          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="aName" value="A" maxlength="16"></label>
           <div class="inline">
             <label class="field" style="flex:0 0 auto"><span>테마색</span><input type="color" id="aColor" value="#ff6fa5"></label>
             <div class="field grow"><span>사진</span>
@@ -176,7 +176,7 @@ header p,.status,.stage .hint{color:var(--ink)}
         <details class="panel" id="panelB" open>
           <summary><h2><span class="dot" id="dotB"></span>캐릭터 B</h2><span class="sum" id="sumB"></span></summary>
           <div class="panel-body">
-          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="bName" value="새벽" maxlength="16"></label>
+          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="bName" value="B" maxlength="16"></label>
           <div class="inline">
             <label class="field" style="flex:0 0 auto"><span>테마색</span><input type="color" id="bColor" value="#5aa9ff"></label>
             <div class="field grow"><span>사진</span>
@@ -283,8 +283,8 @@ const COIN_DESIGNS = { star: "별 동전", heart: "하트", initial: "이니셜 
 
 const S = {
   mode: "pair",
-  A: { name: "하루", color: "#ff6fa5", img: null, zoom: 1, ox: 0, oy: 0 },
-  B: { name: "새벽", color: "#5aa9ff", img: null, zoom: 1, ox: 0, oy: 0 },
+  A: { name: "A", color: "#ff6fa5", img: null, zoom: 1, ox: 0, oy: 0 },
+  B: { name: "B", color: "#5aa9ff", img: null, zoom: 1, ox: 0, oy: 0 },
   cast: "pair", center: "heart",
   title: "", ticker: "lucky lucky pair ♡ hit the jackpot",
   payA: "", payB: "", payPair: "",
@@ -580,7 +580,7 @@ function hangulBitmap(str, size, color) {
   pixelCache.set(key, c);
   return c;
 }
-function drawPixelLabel(ctx, text, xRight, y, size, color, maxW) {
+function drawPixelLabel(ctx, text, xPos, y, size, color, maxW, align = "right") {
   const build = sz => {
     const runs = []; let last = 0;
     text.replace(HANGUL, (m, off) => { if (off > last) runs.push([text.slice(last, off), false]); runs.push([m, true]); last = off + m.length; return m; });
@@ -592,7 +592,7 @@ function drawPixelLabel(ctx, text, xRight, y, size, color, maxW) {
   };
   let sz = size, runs = build(sz);
   while (sz > 8 && runs.reduce((a, r) => a + r.w, 0) > maxW) runs = build(--sz);
-  let x = xRight - runs.reduce((a, r) => a + r.w, 0);
+  let x = align === "left" ? xPos : xPos - runs.reduce((a, r) => a + r.w, 0);
   ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = color;
   for (const r of runs) {
     if (r.h) {
@@ -661,6 +661,9 @@ function render(ctx, t, sc, mode) {
     const s = 6 + 5 * (0.5 + 0.5 * Math.sin(2 * Math.PI * (2 * t + ph)));
     sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = th.ink; ctx.stroke();
   }
+
+  // 슬롯머신 전체를 오른쪽으로 15px 옮겨 몸체를 캔버스 가운데(270)에 맞춤
+  ctx.save(); ctx.translate(15, 0);
 
   // 그림자 + 받침
   ctx.beginPath(); ctx.ellipse(255, 676, 220, 12, 0, 0, Math.PI * 2); ctx.fillStyle = rgba(th.ink, 0.15); ctx.fill();
@@ -754,9 +757,7 @@ function render(ctx, t, sc, mode) {
     }
     syms.forEach((sym, j) => drawSymbol(ctx, sym, 92 + j * 22, y + 12, 20));
     ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = th.ink;
-    const txt = "= " + label;
-    fitFont(ctx, txt, F_PIXEL, 13, 270, 9);
-    ctx.fillText(txt, 156, y + 13);
+    drawPixelLabel(ctx, "= " + label, 156, y + 13, 13, th.ink, 270, "left");
   });
 
   // 코인 트레이
@@ -768,11 +769,11 @@ function render(ctx, t, sc, mode) {
   const pull = leverPull(t);
   const knobY = 236 + pull * 230;
   rr(ctx, 450, 332, 22, 58, 9); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(466, 361); ctx.lineTo(496, knobY); ctx.lineWidth = 9; ctx.strokeStyle = th.ink; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(466, 361); ctx.lineTo(492, knobY); ctx.lineWidth = 9; ctx.strokeStyle = th.ink; ctx.stroke();
   ctx.lineWidth = 5; ctx.strokeStyle = "#eef2fa"; ctx.stroke();
   ctx.beginPath(); ctx.arc(466, 361, 7, 0, Math.PI * 2); ctx.fillStyle = th.accentSoft; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
-  g = ctx.createRadialGradient(490, knobY - 6, 2, 496, knobY, 17); g.addColorStop(0, "#ffffff"); g.addColorStop(0.35, th.accentSoft); g.addColorStop(1, th.accent);
-  ctx.beginPath(); ctx.arc(496, knobY, 16, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
+  g = ctx.createRadialGradient(486, knobY - 6, 2, 492, knobY, 17); g.addColorStop(0, "#ffffff"); g.addColorStop(0.35, th.accentSoft); g.addColorStop(1, th.accent);
+  ctx.beginPath(); ctx.arc(492, knobY, 16, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
 
   // 잭팟 스티커 (끝날 때 작아지며 사라져서 처음과 이어짐)
   if (win) {
@@ -785,10 +786,8 @@ function render(ctx, t, sc, mode) {
       starPath(ctx, 0, 0, 60, 49, 14); ctx.fillStyle = th.accent; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
       ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.setLineDash([3, 3]); ctx.lineWidth = 1.5; ctx.strokeStyle = "#ffffff"; ctx.stroke(); ctx.setLineDash([]);
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      const l1 = mode === "pair" ? pairName() : nm(mode);
-      fitFont(ctx, l1, F_TITLE, 18, 74, 9);
-      ctx.lineWidth = 4; ctx.strokeStyle = th.ink; ctx.strokeText(l1, 0, -9); ctx.fillStyle = "#ffffff"; ctx.fillText(l1, 0, -9);
-      ctx.font = `12px ${F_PIXEL}`; ctx.lineWidth = 3; ctx.strokeText("JACKPOT!", 0, 13); ctx.fillStyle = "#fff3a8"; ctx.fillText("JACKPOT!", 0, 13);
+      fitFont(ctx, "JACKPOT!", F_PIXEL, 15, 76, 10);
+      ctx.lineWidth = 4; ctx.strokeStyle = th.ink; ctx.strokeText("JACKPOT!", 0, 1); ctx.fillStyle = "#fff3a8"; ctx.fillText("JACKPOT!", 0, 1);
       ctx.restore();
     }
   }
@@ -803,6 +802,7 @@ function render(ctx, t, sc, mode) {
     const who = mode === "pair" ? (i % 2 ? "B" : "A") : mode;
     drawCoin(ctx, x, y, c.rad, c.a0 + c.w * tau, S.coin, S.metal, who);
   });
+  ctx.restore();
 }
 
 function drawReel(ctx, i, t, mode, th, win, blink) {
@@ -1157,19 +1157,50 @@ let dlMode = "pending", dlApi = null;
     try { dlApi = await window.claude.use("downloads"); dlMode = dlApi ? "cap" : "none"; } catch (e) { dlMode = "none"; }
   } else dlMode = "anchor";
 })();
-function showSheet(item) {
+function showSheet(gifs) {
   return new Promise(resolve => {
-    const url = URL.createObjectURL(item.blob);
+    const urls = gifs.map(g => URL.createObjectURL(g.blob));
     const wrap = document.createElement("div"); wrap.className = "sheet";
     const card = document.createElement("div"); card.className = "sheet-card"; card.setAttribute("role", "dialog"); card.setAttribute("aria-label", "GIF 저장");
-    const img = document.createElement("img"); img.src = url; img.alt = `${item.label} GIF`;
+    const imgs = urls.map((u, i) => { const img = document.createElement("img"); img.src = u; img.alt = `${gifs[i].label} GIF`; return img; });
     const p = document.createElement("p"); p.textContent = "여기서는 바로 저장이 안 돼요. 이미지를 길게 누르거나 우클릭해서 저장해 주세요.";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn"; btn.textContent = "닫기";
-    btn.onclick = () => { wrap.remove(); URL.revokeObjectURL(url); resolve(); };
-    card.append(img, p, btn); wrap.append(card); document.body.append(wrap); btn.focus();
+    btn.onclick = () => { wrap.remove(); urls.forEach(u => URL.revokeObjectURL(u)); resolve(); };
+    card.style.maxHeight = "90vh"; card.style.overflowY = "auto";
+    card.append(...imgs, p, btn); wrap.append(card); document.body.append(wrap); btn.focus();
   });
 }
-async function deliver(item, retried) {
+
+/* ZIP 묶기 (GIF는 이미 압축돼 있어서 무압축 저장). 한글 파일명은 UTF-8 플래그로 표시 */
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(buf) { let c = 0xFFFFFFFF; for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files) {
+  const enc = new TextEncoder(), now = new Date();
+  const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+  const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  const parts = [], central = []; let offset = 0;
+  for (const f of files) {
+    const name = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
+    lh.setUint32(18, size, true); lh.setUint32(22, size, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), name, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true);
+    ch.setUint32(20, size, true); ch.setUint32(24, size, true); ch.setUint16(28, name.length, true);
+    ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + size;
+  }
+  const cdSize = central.reduce((a, p) => a + p.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: "application/zip" });
+}
+async function deliver(item, gifs, retried) {
   if (dlMode === "pending") dlMode = "none";
   if (dlMode === "anchor") {
     const url = URL.createObjectURL(item.blob);
@@ -1182,10 +1213,10 @@ async function deliver(item, retried) {
     catch (e) {
       const code = e && e.code;
       if (code === "declined") return "declined";
-      if (code === "rate_limited" && !retried) { await new Promise(r => setTimeout(r, 1500)); return deliver(item, true); }
+      if (code === "rate_limited" && !retried) { await new Promise(r => setTimeout(r, 1500)); return deliver(item, gifs, true); }
     }
   }
-  await showSheet(item);
+  await showSheet(gifs);
   return "shown";
 }
 
@@ -1211,23 +1242,24 @@ async function makeGif(mode, step, steps) {
   await tick();
   const bytes = await encodeGif(frames, w, h, DELAY, async i => { prog(1, i); if (i % 4 === 0) await tick(); });
   const blob = new Blob([bytes], { type: "image/gif" });
-  return { blob, label: modeLabel(mode), filename: `슬롯페어틀_${safeName(modeLabel(mode))}.gif` };
+  return { blob, bytes, label: modeLabel(mode), filename: `슬롯페어틀_${safeName(modeLabel(mode))}.gif` };
 }
 async function run(modes) {
   if (busy) return;
   busy = true; $("makeOne").disabled = $("makeAll").disabled = true;
   try {
     await loadFonts();
-    const outcomes = [];
-    for (let s = 0; s < modes.length; s++) {
-      const item = await makeGif(modes[s], s, modes.length);
-      $("status").textContent = `${item.label} 저장 중…`;
-      outcomes.push(await deliver(item));
-    }
+    const gifs = [];
+    for (let s = 0; s < modes.length; s++) gifs.push(await makeGif(modes[s], s, modes.length));
+    // 여러 개는 저장 창이 한 번만 뜨도록 ZIP 하나로 묶음
+    const item = gifs.length > 1
+      ? { blob: makeZip(gifs.map((g, i) => ({ name: `${i + 1}_${g.filename}`, data: g.bytes }))), label: "세 버전", filename: `슬롯페어틀_${safeName(pairName())}_3종.zip` }
+      : gifs[0];
+    $("status").textContent = `${item.label} 저장 중…`;
+    const outcome = await deliver(item, gifs);
     $("bar").style.width = "100%";
-    const saved = outcomes.filter(o => o === "saved").length;
-    $("status").textContent = saved === outcomes.length ? (saved > 1 ? `${saved}개 모두 저장했어요` : "저장했어요")
-      : saved ? `${saved}개 저장했어요` : outcomes.includes("declined") ? "저장을 취소했어요" : "GIF를 만들었어요";
+    $("status").textContent = outcome === "saved" ? (gifs.length > 1 ? "세 버전을 ZIP으로 저장했어요" : "저장했어요")
+      : outcome === "declined" ? "저장을 취소했어요" : "GIF를 만들었어요";
   } catch (e) {
     console.error(e);
     $("status").textContent = "GIF를 만들다 멈췄어요. 크기를 '가볍게'로 바꾸고 다시 시도해 보세요.";
