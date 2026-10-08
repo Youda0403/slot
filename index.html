@@ -272,6 +272,13 @@ const THEMES = {
   chrome: { label: "크롬 실버",   body: "#dfe5ee", ink: "#3554d1", accent: "#ff86bd", bgTop: "#9ec0ff", bgBot: "#eaf2ff", charA: "#ff86bd", charB: "#7f9bd6" },
   cherry: { label: "체리 코크",   body: "#ec3b5a", ink: "#7b1030", accent: "#ffb3c9", bgTop: "#ffd6e2", bgBot: "#fff5f8", charA: "#ff5c7c", charB: "#ffa9c2" },
   denim:  { label: "데님",        body: "#4a6fe0", ink: "#1b2c78", accent: "#ffb6d3", bgTop: "#ffe0ee", bgBot: "#fffafc", charA: "#ffa3c9", charB: "#4a6fe0" },
+  lemon:  { label: "레몬 소다",   body: "#fff08a", ink: "#2f6b4f", accent: "#7fd6a0", bgTop: "#d4f5e3", bgBot: "#f7fff9", charA: "#ffc93c", charB: "#4fbf86" },
+  ocean:  { label: "오션",        body: "#86d4f2", ink: "#1d4e89", accent: "#ffd166", bgTop: "#d3efff", bgBot: "#f4fbff", charA: "#ffbf47", charB: "#3a8dde" },
+  matcha: { label: "말차 라떼",   body: "#bfe0ab", ink: "#3d5a2a", accent: "#f2c27a", bgTop: "#ecf5d9", bgBot: "#fbfdf5", charA: "#e9a45a", charB: "#6aab58" },
+  grape:  { label: "그레이프",    body: "#b9a2ff", ink: "#3a2b8c", accent: "#7ee0d2", bgTop: "#e3dbff", bgBot: "#f8f6ff", charA: "#8f6cf0", charB: "#3fbfae" },
+  orange: { label: "귤",          body: "#ffb76e", ink: "#7a3a12", accent: "#ffe27a", bgTop: "#ffefd6", bgBot: "#fffaf2", charA: "#ff8a3d", charB: "#f5c400" },
+  latte:  { label: "카페 라떼",   body: "#e8d2b5", ink: "#5a3a22", accent: "#9ccfe0", bgTop: "#f4e7d6", bgBot: "#fffaf4", charA: "#c68b59", charB: "#6fa9c4" },
+  night:  { label: "미드나잇 블루", body: "#3b4a99", ink: "#141a40", accent: "#7cf0ff", bgTop: "#c9d3ff", bgBot: "#eef1ff", charA: "#7cf0ff", charB: "#ffd36b" },
 };
 const METALS = {
   gold:   { label: "금",       base: "#f7c548", dark: "#c98612", light: "#fff1b3" },
@@ -487,7 +494,7 @@ function drawSymbol(ctx, sym, cx, cy, s) {
 }
 
 /* ===================== 동전 ===================== */
-function drawPixelCoin(ctx, r, m, front) {
+function drawPixelCoin(ctx, r, m, front, flat) {
   const n = 10, px = (2 * r) / n;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     const x = -r + (i + 0.5) * px, y = -r + (j + 0.5) * px;
@@ -496,45 +503,86 @@ function drawPixelCoin(ctx, r, m, front) {
     let col = d > 0.8 ? INK : d > 0.6 ? m.dark : m.base;
     if (d <= 0.6 && i >= 2 && i <= 3 && j >= 2 && j <= 4) col = m.light;
     if (i >= 4 && i <= 5 && j >= 2 && j <= 7) col = front ? m.light : m.dark;
-    ctx.fillStyle = col;
+    ctx.fillStyle = flat || col;
     ctx.fillRect(-r + i * px, -r + j * px, px + 0.6, px + 0.6);
   }
 }
-function drawCoin(ctx, x, y, r, ang, design, metal, who) {
+/* 입체 동전: 세로축으로 돌 때 옆면(두께)이 보이고, 테두리는 볼록·면은 오목하게 음영, 돌아갈수록 면이 어두워짐 */
+function drawCoin(ctx, x, y, r, ang, design, metal, who, tilt = 0) {
   const m = METALS[metal];
-  const c = Math.cos(ang), sx = Math.max(0.08, Math.abs(c)), front = c >= 0;
-  ctx.save(); ctx.translate(x, y); ctx.scale(sx, 1);
-  ctx.lineJoin = "round";
-  if (design === "pixel") { drawPixelCoin(ctx, r, m, front); ctx.restore(); return; }
+  const c = Math.cos(ang), sn = Math.sin(ang);
+  const sx = Math.max(0.06, Math.abs(c)), front = c >= 0;
+  const ox = sn * r * 0.32;                              // 옆면이 보이는 방향과 길이
   const shape = rad => { if (design === "heart") heartPath(ctx, 0, rad * 0.02, rad * 0.95); else { ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); } };
-  shape(r); ctx.fillStyle = m.dark; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
-  shape(r * 0.86);
-  const g = ctx.createLinearGradient(-r, -r, r, r);
-  g.addColorStop(0, m.light); g.addColorStop(0.45, m.base); g.addColorStop(1, m.dark);
-  ctx.fillStyle = g; ctx.fill();
-  if (front) {
-    if (design === "star") {
-      starPath(ctx, 0, r * 0.03, r * 0.48, r * 0.21, 5); ctx.fillStyle = m.light; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = m.dark; ctx.stroke();
-    } else if (design === "heart") {
-      heartPath(ctx, 0, r * 0.04, r * 0.4); ctx.fillStyle = m.light; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = m.dark; ctx.stroke();
-    } else if (design === "initial") {
-      ctx.lineWidth = r * 0.14; ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineCap = "butt";
-      for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; ctx.beginPath(); ctx.arc(0, 0, r * 0.93, a, a + 0.32); ctx.stroke(); }
-      ctx.beginPath(); ctx.arc(0, 0, r * 0.6, 0, Math.PI * 2); ctx.fillStyle = m.light; ctx.fill();
-      ctx.setLineDash([2, 2]); ctx.lineWidth = 1; ctx.strokeStyle = m.dark; ctx.stroke(); ctx.setLineDash([]);
-      ctx.font = `${Math.round(r * 0.7)}px ${F_TITLE}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillStyle = m.dark; ctx.fillText(initial(who), 0, r * 0.05);
-    } else if (design === "face") {
-      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 0.72, 0, Math.PI * 2); ctx.clip();
-      drawPortrait(ctx, who, -r * 0.72, -r * 0.72, r * 1.44, r * 1.44, 0);
-      ctx.restore();
-      ctx.beginPath(); ctx.arc(0, 0, r * 0.72, 0, Math.PI * 2); ctx.lineWidth = 1.5; ctx.strokeStyle = m.light; ctx.stroke();
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+  ctx.lineJoin = "round";
+
+  // 옆면: 같은 모양을 1px 간격으로 겹쳐 두께를 만듦 (먼저 전부 외곽선, 그다음 전부 채움 → 바깥 윤곽만 남음)
+  const steps = Math.ceil(Math.abs(ox));
+  if (steps > 0) {
+    if (design === "pixel") {
+      for (let k = steps; k >= 1; k--) {
+        ctx.save(); ctx.translate(ox * k / steps, 0); ctx.scale(sx, 1);
+        drawPixelCoin(ctx, r, m, front, k === steps ? INK : mix(m.dark, "#000000", 0.15)); ctx.restore();
+      }
+    } else {
+      const eg = ctx.createLinearGradient(0, -r, 0, r);
+      eg.addColorStop(0, m.base); eg.addColorStop(0.45, m.dark); eg.addColorStop(1, mix(m.dark, "#000000", 0.3));
+      for (let k = steps; k >= 1; k--) { ctx.save(); ctx.translate(ox * k / steps, 0); ctx.scale(sx, 1); shape(r); ctx.lineWidth = 3; ctx.strokeStyle = INK; ctx.stroke(); ctx.restore(); }
+      for (let k = steps; k >= 1; k--) { ctx.save(); ctx.translate(ox * k / steps, 0); ctx.scale(sx, 1); shape(r); ctx.fillStyle = eg; ctx.fill(); ctx.restore(); }
     }
-    ctx.beginPath(); ctx.ellipse(-r * 0.42, -r * 0.42, r * 0.16, r * 0.08, -0.8, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fill();
-  } else {
-    shape(r * 0.55); ctx.lineWidth = 1.5; ctx.strokeStyle = m.dark; ctx.stroke();
   }
+
+  // 앞(또는 뒤)면
+  ctx.save(); ctx.scale(sx, 1);
+  if (design === "pixel") {
+    drawPixelCoin(ctx, r, m, front);
+  } else {
+    shape(r);
+    const rim = ctx.createLinearGradient(-r, -r, r, r);
+    rim.addColorStop(0, m.light); rim.addColorStop(0.5, m.base); rim.addColorStop(1, m.dark);
+    ctx.fillStyle = rim; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = INK; ctx.stroke();
+    shape(r * 0.82);
+    const face = ctx.createLinearGradient(-r, -r, r, r);
+    face.addColorStop(0, mix(m.base, m.dark, 0.35)); face.addColorStop(0.6, m.base); face.addColorStop(1, m.light);
+    ctx.fillStyle = face; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = mix(m.dark, "#000000", 0.15); ctx.stroke();
+    if (front) {
+      if (design === "star") {
+        starPath(ctx, r * 0.03, r * 0.06, r * 0.46, r * 0.2, 5); ctx.fillStyle = m.dark; ctx.fill();
+        starPath(ctx, 0, r * 0.03, r * 0.46, r * 0.2, 5); ctx.fillStyle = m.light; ctx.fill();
+      } else if (design === "heart") {
+        heartPath(ctx, r * 0.03, r * 0.07, r * 0.38); ctx.fillStyle = m.dark; ctx.fill();
+        heartPath(ctx, 0, r * 0.04, r * 0.38); ctx.fillStyle = m.light; ctx.fill();
+      } else if (design === "initial") {
+        ctx.lineWidth = r * 0.15; ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineCap = "butt";
+        for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; ctx.beginPath(); ctx.arc(0, 0, r * 0.91, a, a + 0.32); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(0, 0, r * 0.6, 0, Math.PI * 2); ctx.fillStyle = m.light; ctx.fill();
+        ctx.setLineDash([2, 2]); ctx.lineWidth = 1; ctx.strokeStyle = m.dark; ctx.stroke(); ctx.setLineDash([]);
+        ctx.font = `${Math.round(r * 0.7)}px ${F_TITLE}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = m.dark; ctx.fillText(initial(who), 0, r * 0.05);
+      } else if (design === "face") {
+        ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2); ctx.clip();
+        drawPortrait(ctx, who, -r * 0.7, -r * 0.7, r * 1.4, r * 1.4, 0);
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2); ctx.lineWidth = 1.5; ctx.strokeStyle = m.dark; ctx.stroke();
+      }
+    } else {
+      shape(r * 0.5); ctx.lineWidth = 1.5; ctx.strokeStyle = m.dark; ctx.stroke();
+    }
+    // 반사광
+    if (design === "heart") {
+      ctx.beginPath(); ctx.ellipse(-r * 0.45, -r * 0.3, r * 0.14, r * 0.07, -0.8, 0, Math.PI * 2); ctx.fillStyle = "rgba(255,255,255,.75)"; ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.91, Math.PI * 1.08, Math.PI * 1.42);
+      ctx.lineWidth = r * 0.09; ctx.lineCap = "round"; ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.stroke();
+    }
+  }
+  // 옆으로 돌아갈수록 면이 살짝 어두워짐
+  if (sx < 0.98) {
+    if (design === "pixel") { ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); } else shape(r);
+    ctx.fillStyle = `rgba(20,20,50,${((1 - sx) * 0.25).toFixed(3)})`; ctx.fill();
+  }
+  ctx.restore();
   ctx.restore();
 }
 
@@ -547,10 +595,11 @@ const BULBS = (() => {
 })();
 const WIN_DOTS = Array.from({ length: 19 }, (_, i) => 86 + i * 338 / 18);
 const ORBS = [[44, 262, 58, 0], [498, 128, 46, 1], [490, 548, 66, 0], [50, 612, 40, 1]];
-const SPARKLES = [[34, 76, 0], [506, 64, 0.3], [24, 390, 0.6], [514, 330, 0.15], [502, 664, 0.45], [36, 520, 0.8]];
+const SPARKLES = [[46, 94, 0], [494, 66, 0.5], [36, 438, 0.25], [508, 590, 0.75]];   // 슬롯머신·손잡이와 안 겹치는 네 귀퉁이 쪽
 const COINS = (() => {
   const r = mulberry32(20261008), a = [];
   for (let i = 0; i < 30; i++) a.push({ t0: TL.win + 0.02 + r() * 0.17, vx: (r() - 0.5) * 560, vy: -(600 + r() * 380), rad: 15 + r() * 7, a0: r() * 6.28, w: (5 + r() * 7) * (r() < 0.5 ? -1 : 1) });
+  a.forEach((c, i) => { c.tilt = Math.sin(i * 7.13) * 0.45; });   // 동전마다 살짝 기울여 날아가게
   return a;
 })();
 
@@ -656,10 +705,11 @@ function render(ctx, t, sc, mode) {
   const ver = mode === "pair" ? `VER. ${nm("A")} ${joiner()} ${nm("B")}` : `VER. ${nm(mode)} × 3`;
   drawPixelLabel(ctx, ver, 514, 30, 11, th.ink, 300);
   ctx.font = `11px ${F_PIXEL}`;
-  ctx.textAlign = "left"; ctx.fillText("INSERT ♡ COIN", 26, 694);
+  ctx.textAlign = "left"; ctx.fillText("INSERT COIN", 26, 694);
+  ctx.textAlign = "right"; ctx.fillText(win ? "CREDIT 777" : "CREDIT 01", 514, 694);   // 당첨되면 크레딧이 777로
   for (const [x, y, ph] of SPARKLES) {
-    const s = 6 + 5 * (0.5 + 0.5 * Math.sin(2 * Math.PI * (2 * t + ph)));
-    sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = th.ink; ctx.stroke();
+    const s = 11 + 6 * (0.5 + 0.5 * Math.sin(2 * Math.PI * (2 * t + ph)));
+    sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = th.ink; ctx.stroke();
   }
 
   // 슬롯머신 전체를 오른쪽으로 15px 옮겨 몸체를 캔버스 가운데(270)에 맞춤
@@ -738,12 +788,12 @@ function render(ctx, t, sc, mode) {
   ctx.font = `11px ${F_PIXEL}`; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = "#ffffff";
   ctx.lineWidth = 3; ctx.strokeStyle = th.ink; ctx.strokeText("payout.exe", 82, 489); ctx.fillText("payout.exe", 82, 489);
   for (let k = 0; k < 3; k++) {
-    const bx = 386 + k * 16;
-    rr(ctx, bx, 482, 12, 12, 3); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = th.ink; ctx.stroke();
+    const bx = 380 + k * 16, by = 483.2;   // 제목줄 보이는 높이(479.3~499)의 가운데 489.2 기준
+    rr(ctx, bx, by, 12, 12, 3); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = th.ink; ctx.stroke();
     ctx.beginPath();
-    if (k === 0) { ctx.moveTo(bx + 3, 491); ctx.lineTo(bx + 9, 491); }
-    else if (k === 1) { ctx.rect(bx + 3, 485, 6, 6); }
-    else { ctx.moveTo(bx + 3, 485); ctx.lineTo(bx + 9, 491); ctx.moveTo(bx + 9, 485); ctx.lineTo(bx + 3, 491); }
+    if (k === 0) { ctx.moveTo(bx + 3, by + 8.5); ctx.lineTo(bx + 9, by + 8.5); }
+    else if (k === 1) { ctx.rect(bx + 3, by + 3, 6, 6); }
+    else { ctx.moveTo(bx + 3, by + 3); ctx.lineTo(bx + 9, by + 9); ctx.moveTo(bx + 9, by + 3); ctx.lineTo(bx + 3, by + 9); }
     ctx.lineWidth = 1.2; ctx.stroke();
   }
   const rows = S.cast === "solo"
@@ -800,7 +850,7 @@ function render(ctx, t, sc, mode) {
     if (y > H + c.rad + 6) return;
     const x = 255 + c.vx * tau;
     const who = mode === "pair" ? (i % 2 ? "B" : "A") : mode;
-    drawCoin(ctx, x, y, c.rad, c.a0 + c.w * tau, S.coin, S.metal, who);
+    drawCoin(ctx, x, y, c.rad, c.a0 + c.w * tau, S.coin, S.metal, who, c.tilt);
   });
   ctx.restore();
 }
@@ -1146,7 +1196,7 @@ function drawCoinChips() {
     INK = theme().ink;
     const x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
     x.setTransform(2, 0, 0, 2, 0, 0);
-    drawCoin(x, 26, 26, 22, 0, key, S.metal, S.mode === "B" ? "B" : "A");
+    drawCoin(x, 24, 26, 21, 0.5, key, S.metal, S.mode === "B" ? "B" : "A");   // 두께가 보이게 살짝 돌린 모습
   }
 }
 
