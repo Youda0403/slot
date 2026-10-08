@@ -248,7 +248,7 @@ header p,.status,.stage .hint{color:var(--ink)}
 /* ===================== 설정 ===================== */
 const W = 540, H = 720, NF = 48, DELAY = 7;          // 48프레임 × 70ms
 const DUR = NF * DELAY / 100;                         // 3.36초
-const TL = { spin: 0.07, stops: [0.30, 0.38, 0.47], win: 0.53, out: 0.94 };
+const TL = { spin: 0.07, stops: [0.30, 0.38, 0.47], win: 26 / 48, out: 0.94 };   // win은 정확히 26번째 프레임에서 시작
 const BASE_STRIP = ["A", "seven", "heart", "cherry", "B", "ribbon", "star", "clover"];
 const SOLO_STRIP = BASE_STRIP.map(sym => sym === "B" ? "A" : sym);   // 1인 구성은 B 자리에 A
 const STRIPS_BY = {
@@ -285,8 +285,9 @@ const METALS = {
   silver: { label: "은",       base: "#d9dee8", dark: "#8f98ab", light: "#ffffff" },
   rose:   { label: "로즈골드", base: "#f2a99a", dark: "#c4685a", light: "#ffe2da" },
   pink:   { label: "핑크",     base: "#ff9cc6", dark: "#d9488a", light: "#ffe3f0" },
+  sky:    { label: "하늘",     base: "#a9d4ff", dark: "#4f86d1", light: "#eef7ff" },
 };
-const COIN_DESIGNS = { star: "별 동전", heart: "하트", initial: "이니셜 칩", face: "얼굴", pixel: "픽셀" };
+const COIN_DESIGNS = { star: "별 동전", heart: "하트", initial: "이니셜 칩", face: "얼굴", clover: "클로버", pixel: "픽셀" };
 
 const S = {
   mode: "pair",
@@ -565,6 +566,16 @@ function drawCoin(ctx, x, y, r, ang, design, metal, who, tilt = 0) {
         drawPortrait(ctx, who, -r * 0.7, -r * 0.7, r * 1.4, r * 1.4, 0);
         ctx.restore();
         ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2); ctx.lineWidth = 1.5; ctx.strokeStyle = m.dark; ctx.stroke();
+      } else if (design === "clover") {
+        for (const [dx, dy, col] of [[r * 0.03, r * 0.04, m.dark], [0, 0, m.light]]) {   // 그림자 → 본체 순으로 찍어 볼록하게
+          for (let k = 0; k < 4; k++) {
+            ctx.save(); ctx.translate(dx, dy); ctx.rotate(k * Math.PI / 2 + Math.PI / 4);
+            heartPath(ctx, 0, -r * 0.24, r * 0.22); ctx.fillStyle = col; ctx.fill();
+            if (col === m.light) { ctx.lineWidth = 1; ctx.strokeStyle = m.dark; ctx.stroke(); }   // 밝은 면 위에서도 잎이 보이게
+            ctx.restore();
+          }
+        }
+        ctx.beginPath(); ctx.arc(0, 0, r * 0.07, 0, Math.PI * 2); ctx.fillStyle = m.dark; ctx.fill();
       }
     } else {
       shape(r * 0.5); ctx.lineWidth = 1.5; ctx.strokeStyle = m.dark; ctx.stroke();
@@ -595,7 +606,10 @@ const BULBS = (() => {
 })();
 const WIN_DOTS = Array.from({ length: 19 }, (_, i) => 86 + i * 338 / 18);
 const ORBS = [[44, 262, 58, 0], [498, 128, 46, 1], [490, 548, 66, 0], [50, 612, 40, 1]];
-const SPARKLES = [[46, 94, 0], [494, 66, 0.5], [36, 438, 0.25], [508, 590, 0.75]];   // 슬롯머신·손잡이와 안 겹치는 네 귀퉁이 쪽
+const SPARKLES = [   // [x, y, 위상, 큰 것(1)/작은 것(0)] — 돔 오른쪽 위, 몸체 왼쪽 위, 받침 오른쪽
+  [452, 86, 0, 1], [38, 244, 0.33, 1], [500, 628, 0.66, 1],
+  [486, 122, 0.5, 0], [60, 280, 0.85, 0],
+];
 const COINS = (() => {
   const r = mulberry32(20261008), a = [];
   for (let i = 0; i < 30; i++) a.push({ t0: TL.win + 0.02 + r() * 0.17, vx: (r() - 0.5) * 560, vy: -(600 + r() * 380), rad: 15 + r() * 7, a0: r() * 6.28, w: (5 + r() * 7) * (r() < 0.5 ? -1 : 1) });
@@ -629,28 +643,64 @@ function hangulBitmap(str, size, color) {
   pixelCache.set(key, c);
   return c;
 }
-function drawPixelLabel(ctx, text, xPos, y, size, color, maxW, align = "right") {
-  const build = sz => {
-    const runs = []; let last = 0;
-    text.replace(HANGUL, (m, off) => { if (off > last) runs.push([text.slice(last, off), false]); runs.push([m, true]); last = off + m.length; return m; });
-    if (last < text.length) runs.push([text.slice(last), false]);
-    return runs.map(([str, h]) => {
-      if (h) { const bm = hangulBitmap(str, sz, color); return { h, bm, w: bm.width - 2 }; }
-      ctx.font = `${sz}px ${F_PIXEL}`; return { h, str, w: ctx.measureText(str).width };
-    });
-  };
-  let sz = size, runs = build(sz);
-  while (sz > 8 && runs.reduce((a, r) => a + r.w, 0) > maxW) runs = build(--sz);
-  let x = align === "left" ? xPos : xPos - runs.reduce((a, r) => a + r.w, 0);
+/* 기호는 폰트마다 높이가 달라 떠 보이므로, 도트 아이콘으로 직접 그려 글자(대문자) 높이의 가운데에 맞춤 */
+const ICON_ROWS = {
+  "♥": [".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."],
+  "♡": [".XX.XX.", "X..X..X", "X.....X", ".X...X.", "..X.X..", "...X..."],
+  "★": ["...X...", "..XXX..", "XXXXXXX", ".XXXXX.", "..XXX..", ".XX.XX.", ".X...X."],
+  "✦": ["...X...", "...X...", "..XXX..", "XXXXXXX", "..XXX..", "...X...", "...X..."],
+  "×": ["X...X", ".X.X.", "..X..", ".X.X.", "X...X"],
+};
+ICON_ROWS["☆"] = ICON_ROWS["★"].map((row, j, rows) => [...row].map((ch, i) => {   // ★의 테두리만 남김
+  if (ch !== "X") return ".";
+  const at = (jj, ii) => (rows[jj] || "")[ii] === "X";
+  return at(j - 1, i) && at(j + 1, i) && at(j, i - 1) && at(j, i + 1) ? "." : "X";
+}).join(""));
+const PIXEL_SPLIT = /([\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]+)|([♥♡★☆✦×])/g;
+function layoutPixel(ctx, text, sz, color, hangul) {
+  const runs = []; let last = 0, m;
+  const plain = str => { ctx.font = `${sz}px ${F_PIXEL}`; runs.push({ k: "t", str, w: ctx.measureText(str).width }); };
+  PIXEL_SPLIT.lastIndex = 0;
+  while ((m = PIXEL_SPLIT.exec(text))) {
+    if (m.index > last) plain(text.slice(last, m.index));
+    if (m[1]) {
+      if (hangul) { const bm = hangulBitmap(m[1], sz, color); runs.push({ k: "h", bm, w: bm.width - 2 }); }
+      else plain(m[1]);
+    } else {
+      const rows = ICON_ROWS[m[2]], u = sz * 0.68 / 6;   // 아이콘 높이 ≈ 대문자보다 살짝 크게
+      runs.push({ k: "i", rows, u, w: (rows[0].length + 1.4) * u });
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) plain(text.slice(last));
+  return { runs, w: runs.reduce((a, r) => a + r.w, 0) };
+}
+function drawPixelRuns(ctx, runs, x, y, sz, color) {
   ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = color;
+  ctx.font = `${sz}px ${F_PIXEL}`;
+  const mh = ctx.measureText("H");
+  const capC = y + ((mh.actualBoundingBoxDescent || 0) - (mh.actualBoundingBoxAscent || sz * 0.35)) / 2;   // 대문자 세로 가운데
+  const dev = ctx.getTransform().a || 1;
   for (const r of runs) {
-    if (r.h) {
+    if (r.k === "h") {
       const prev = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false;
       ctx.drawImage(r.bm, Math.round(x) - 1, Math.round(y - r.bm.height / 2));
       ctx.imageSmoothingEnabled = prev;
+    } else if (r.k === "i") {
+      const u = Math.max(1, Math.round(r.u * dev)) / dev;                 // 화면 픽셀에 딱 맞는 도트 크기
+      const rows = r.rows, h = rows.length * u;
+      const x0 = Math.round((x + 0.7 * r.u) * dev) / dev, y0 = Math.round((capC - h / 2) * dev) / dev;
+      for (let j = 0; j < rows.length; j++) for (let i = 0; i < rows[j].length; i++)
+        if (rows[j][i] === "X") ctx.fillRect(x0 + i * u, y0 + j * u, u, u);
     } else { ctx.font = `${sz}px ${F_PIXEL}`; ctx.fillText(r.str, x, y); }
     x += r.w;
   }
+}
+function drawPixelLabel(ctx, text, xPos, y, size, color, maxW, align = "right", hangul = true) {
+  let sz = size, lay = layoutPixel(ctx, text, sz, color, hangul);
+  while (sz > 8 && lay.w > maxW) lay = layoutPixel(ctx, text, --sz, color, hangul);
+  const x = align === "left" ? xPos : align === "center" ? xPos - lay.w / 2 : xPos - lay.w;
+  drawPixelRuns(ctx, lay.runs, x, y, sz, color);
 }
 
 function reelState(i, t, mode) {
@@ -678,7 +728,8 @@ function render(ctx, t, sc, mode) {
   INK = th.ink;
   const win = t >= TL.win;
   const f = Math.floor(t * NF);
-  const blink = win && Math.floor(f / 2) % 2 === 0;
+  const wf = f - Math.round(TL.win * NF);                   // 당첨 후 몇 번째 프레임인지
+  const blink = win && Math.floor(wf / 2) % 2 === 0;        // 당첨 순간부터 2프레임 켜짐 / 2프레임 꺼짐 반복
   ctx.setTransform(sc, 0, 0, sc, 0, 0);
   ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.lineJoin = "round"; ctx.lineCap = "round";
 
@@ -706,10 +757,19 @@ function render(ctx, t, sc, mode) {
   drawPixelLabel(ctx, ver, 514, 30, 11, th.ink, 300);
   ctx.font = `11px ${F_PIXEL}`;
   ctx.textAlign = "left"; ctx.fillText("INSERT COIN", 26, 694);
-  ctx.textAlign = "right"; ctx.fillText(win ? "CREDIT 777" : "CREDIT 01", 514, 694);   // 당첨되면 크레딧이 777로
-  for (const [x, y, ph] of SPARKLES) {
-    const s = 11 + 6 * (0.5 + 0.5 * Math.sin(2 * Math.PI * (2 * t + ph)));
-    sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = th.ink; ctx.stroke();
+  if (!win) { ctx.textAlign = "right"; ctx.fillText("CREDIT 01", 514, 694); }
+  else {
+    // 당첨되면 777로 바뀌며 '띠용': 통 튀어 오르고 가로세로로 출렁이다 잦아듦
+    const u = (t - TL.win) * DUR / 0.6, e = Math.exp(-4 * u);
+    const a = 0.45 * e * Math.cos(u * 15), jump = -10 * e * Math.abs(Math.sin(u * 15));
+    const w = ctx.measureText("CREDIT 777").width;
+    ctx.save(); ctx.translate(514 - w / 2, 694 + jump); ctx.scale(1 + a, 1 - a * 0.6);
+    ctx.textAlign = "center"; ctx.fillText("CREDIT 777", 0, 0); ctx.restore();
+  }
+  for (const [x, y, ph, big] of SPARKLES) {
+    const osc = 0.5 + 0.5 * Math.sin(2 * Math.PI * (2 * t + ph));
+    const s = big ? 14 + 7 * osc : 6 + 3 * osc;
+    sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = big ? 1.8 : 1.3; ctx.strokeStyle = th.ink; ctx.stroke();
   }
 
   // 슬롯머신 전체를 오른쪽으로 15px 옮겨 몸체를 캔버스 가운데(270)에 맞춤
@@ -731,18 +791,32 @@ function render(ctx, t, sc, mode) {
   ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
   ctx.beginPath(); ctx.moveTo(109, 210); ctx.lineTo(109, 152); ctx.ellipse(255, 152, 146, 86, 0, Math.PI, Math.PI * 2); ctx.lineTo(401, 210); ctx.closePath();
   ctx.fillStyle = th.soft; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
-  heartPath(ctx, 255, 30, 15);
-  ctx.fillStyle = th.accent; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
   BULBS.forEach(([x, y], k) => {
-    const lit = win ? ((k + Math.floor(f / 2)) % 2 === 0) : ((k + f) % 3 === 0);
+    const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : ((k + f) % 3 === 0);
     ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
     if (lit) { ctx.shadowColor = "#ffffff"; ctx.shadowBlur = 8; ctx.fillStyle = "#fffbe6"; }
     else { ctx.fillStyle = mix(th.body, th.ink, 0.25); }
     ctx.fill(); ctx.shadowBlur = 0; ctx.lineWidth = 1.5; ctx.strokeStyle = th.ink; ctx.stroke();
   });
+  // 꼭대기 하트 장식: 전구보다 나중에 그려 맨 위 전구에 끝이 가려지지 않게
+  {
+    const hx = 255, hy = 28, hs = 17, depth = 5;
+    for (let k = depth; k >= 1; k--) { heartPath(ctx, hx, hy + k, hs); ctx.lineWidth = 3; ctx.strokeStyle = th.ink; ctx.stroke(); }   // 두께(외곽선 먼저)
+    for (let k = depth; k >= 1; k--) { heartPath(ctx, hx, hy + k, hs); ctx.fillStyle = mix(th.accent, th.ink, 0.38); ctx.fill(); }
+    heartPath(ctx, hx, hy, hs);
+    let hg = ctx.createLinearGradient(0, hy - hs * 0.7, 0, hy + hs * 0.9);
+    hg.addColorStop(0, mix(th.accent, "#ffffff", 0.5)); hg.addColorStop(1, mix(th.accent, th.ink, 0.12));
+    ctx.fillStyle = hg; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
+    heartPath(ctx, hx, hy + hs * 0.07, hs * 0.64);                                     // 안쪽 면은 반대 음영 → 오목
+    hg = ctx.createLinearGradient(0, hy - hs * 0.45, 0, hy + hs * 0.65);
+    hg.addColorStop(0, mix(th.accent, th.ink, 0.1)); hg.addColorStop(1, mix(th.accent, "#ffffff", 0.4));
+    ctx.fillStyle = hg; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(hx - hs * 0.5, hy - hs * 0.3, hs * 0.18, hs * 0.09, -0.7, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(hx - hs * 0.2, hy - hs * 0.47, hs * 0.05, 0, Math.PI * 2); ctx.fill();
+  }
+  drawPixelLabel(ctx, S.cast === "solo" ? "♥ LUCKY ME ♥" : "♥ LUCKY PAIR ♥", 255, 102, 13, th.ink, 300, "center");   // 1인은 전광판 문구와 맞춤
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.font = `13px ${F_PIXEL}`; ctx.fillStyle = th.ink;
-  ctx.fillText(S.cast === "solo" ? "♥ LUCKY ME ♥" : "♥ LUCKY PAIR ♥", 255, 102);   // 1인은 전광판 문구와 맞춤
   const tt = titleText();
   fitFont(ctx, tt, F_TITLE, 46, 250, 18);
   ctx.lineWidth = 6; ctx.strokeStyle = th.ink;
@@ -753,29 +827,25 @@ function render(ctx, t, sc, mode) {
   rr(ctx, 96, 214, 318, 30, 15); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
   ctx.save(); rr(ctx, 98, 216, 314, 26, 13); ctx.clip();
   const msg = (S.ticker.trim() || titleText()) + "   ✦   ";
-  ctx.font = `14px ${F_PIXEL}`; ctx.textAlign = "left";
-  const uw = Math.max(40, ctx.measureText(msg).width);
+  const lay = layoutPixel(ctx, msg, 14, blink ? th.accent : th.ink, false);
+  const uw = Math.max(40, lay.w);
   const laps = Math.max(1, Math.round(DUR * 70 / uw));
   const off = (t * laps * uw) % uw;
   ctx.fillStyle = blink ? th.accent : th.ink;
-  for (let x = 98 - off; x < 414; x += uw) ctx.fillText(msg, x, 230);
+  for (let x = 98 - off; x < 414; x += uw) drawPixelRuns(ctx, lay.runs, x, 230, 14, blink ? th.accent : th.ink);
   ctx.restore();
 
   // 릴 창
   rr(ctx, 62, 252, 386, 214, 24); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
   WIN_DOTS.forEach((x, k) => {
     for (const y of [258, 460]) {
-      const lit = win ? ((k + Math.floor(f / 2)) % 2 === 0) : ((k + f) % 4 === 0);
+      const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : ((k + f) % 4 === 0);
       ctx.beginPath(); ctx.arc(x, y, 2.8, 0, Math.PI * 2);
       ctx.fillStyle = lit ? th.accent : th.accentSoft; ctx.fill();
     }
   });
   rr(ctx, 70, 264, 370, 190, 16); ctx.fillStyle = th.ink; ctx.fill();
   for (let i = 0; i < 3; i++) drawReel(ctx, i, t, mode, th, win, blink);
-  for (const [x, dir] of [[60, 1], [450, -1]]) {
-    ctx.beginPath(); ctx.moveTo(x - dir * 4, MID_Y - 11); ctx.lineTo(x + dir * 12, MID_Y); ctx.lineTo(x - dir * 4, MID_Y + 11); ctx.closePath();
-    ctx.fillStyle = win && blink ? "#fff3a8" : th.accent; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
-  }
 
   // 배당표: Y2K 창
   rr(ctx, 70, 478, 370, 108, 12); ctx.fillStyle = "#ffffff"; ctx.fill();
@@ -819,6 +889,11 @@ function render(ctx, t, sc, mode) {
   const pull = leverPull(t);
   const knobY = 236 + pull * 230;
   rr(ctx, 450, 332, 22, 58, 9); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
+  // 당첨 줄 세모 화살표: 레버 받침보다 나중에 그려야 오른쪽 것이 가려지지 않아 좌우 크기가 같음
+  for (const [x, dir] of [[60, 1], [450, -1]]) {
+    ctx.beginPath(); ctx.moveTo(x - dir * 4, MID_Y - 11); ctx.lineTo(x + dir * 12, MID_Y); ctx.lineTo(x - dir * 4, MID_Y + 11); ctx.closePath();
+    ctx.fillStyle = win && blink ? "#fff3a8" : th.accent; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
+  }
   ctx.beginPath(); ctx.moveTo(466, 361); ctx.lineTo(492, knobY); ctx.lineWidth = 9; ctx.strokeStyle = th.ink; ctx.stroke();
   ctx.lineWidth = 5; ctx.strokeStyle = "#eef2fa"; ctx.stroke();
   ctx.beginPath(); ctx.arc(466, 361, 7, 0, Math.PI * 2); ctx.fillStyle = th.accentSoft; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
