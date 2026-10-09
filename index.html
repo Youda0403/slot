@@ -800,9 +800,7 @@ function render(ctx, t, sc, mode) {
   });
   // 꼭대기 하트 장식: 전구보다 나중에 그려 맨 위 전구에 끝이 가려지지 않게
   {
-    const hx = 255, hy = 28, hs = 17, depth = 5;
-    for (let k = depth; k >= 1; k--) { heartPath(ctx, hx, hy + k, hs); ctx.lineWidth = 3; ctx.strokeStyle = th.ink; ctx.stroke(); }   // 두께(외곽선 먼저)
-    for (let k = depth; k >= 1; k--) { heartPath(ctx, hx, hy + k, hs); ctx.fillStyle = mix(th.accent, th.ink, 0.38); ctx.fill(); }
+    const hx = 255, hy = 28, hs = 17;   // 정면 시점이라 아래로 쌓은 두께 없이 면 음영·광택만
     heartPath(ctx, hx, hy, hs);
     let hg = ctx.createLinearGradient(0, hy - hs * 0.7, 0, hy + hs * 0.9);
     hg.addColorStop(0, mix(th.accent, "#ffffff", 0.5)); hg.addColorStop(1, mix(th.accent, th.ink, 0.12));
