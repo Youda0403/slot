@@ -1347,7 +1347,7 @@ async function deliver(item, gifs, retried) {
 }
 
 const MODE_ORDER = ["A", "B", "pair"];
-function modeLabel(m) { return S.cast === "solo" ? `${nm("A")} 1인 잭팟` : m === "pair" ? pairName() : `${nm(m)} 잭팟`; }
+function modeLabel(m) { return S.cast === "solo" ? `${nm("A")} 1인 잭팟` : m === "pair" ? `${nm("A")}×${nm("B")}` : `${nm(m)} 잭팟`; }   // 페이지·파일 이름은 탭과 같은 ×
 function safeName(s) { return s.replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40); }
 const tick = () => new Promise(r => setTimeout(r, 0));
 
@@ -1379,7 +1379,7 @@ async function run(modes) {
     for (let s = 0; s < modes.length; s++) gifs.push(await makeGif(modes[s], s, modes.length));
     // 여러 개는 저장 창이 한 번만 뜨도록 ZIP 하나로 묶음
     const item = gifs.length > 1
-      ? { blob: makeZip(gifs.map((g, i) => ({ name: `${i + 1}_${g.filename}`, data: g.bytes }))), label: "세 버전", filename: `슬롯페어틀_${safeName(pairName())}_3종.zip` }
+      ? { blob: makeZip(gifs.map((g, i) => ({ name: `${i + 1}_${g.filename}`, data: g.bytes }))), label: "세 버전", filename: `슬롯페어틀_${safeName(`${nm("A")}×${nm("B")}`)}_3종.zip` }
       : gifs[0];
     $("status").textContent = `${item.label} 저장 중…`;
     const outcome = await deliver(item, gifs);
