@@ -909,7 +909,7 @@ function render(ctx, t, sc, mode) {
   ctx.beginPath(); ctx.moveTo(109, 210); ctx.lineTo(109, 152); ctx.ellipse(255, 152, 146, 86, 0, Math.PI, Math.PI * 2); ctx.lineTo(401, 210); ctx.closePath();
   ctx.fillStyle = th.soft; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
   BULBS.forEach(([x, y], k) => {
-    const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : true;   // 결과 전엔 모두 켜진 채 고정, 당첨 때만 깜빡
+    const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : k % 3 === 0;   // 결과 전엔 원래 색 배치 그대로 멈춰 있고, 당첨 때만 깜빡
     const r = k % 2 ? 4.2 : 5.6;                       // 큰 전구·작은 전구 번갈아
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
     if (lit) { ctx.shadowColor = "#ffffff"; ctx.shadowBlur = r * 1.6; ctx.fillStyle = "#fffbe6"; }
@@ -957,7 +957,7 @@ function render(ctx, t, sc, mode) {
   rr(ctx, 62, 252, 386, 214, 24); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = th.ink; ctx.stroke();
   WIN_DOTS.forEach((x, k) => {
     for (const y of [258, 460]) {
-      const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : ((k + f) % 4 === 0);
+      const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : k % 4 === 0;   // 릴 창 점도 돔 전구처럼 결과 전엔 멈춤
       ctx.beginPath(); ctx.arc(x, y, 2.8, 0, Math.PI * 2);
       ctx.fillStyle = lit ? th.accent : th.accentSoft; ctx.fill();
     }
