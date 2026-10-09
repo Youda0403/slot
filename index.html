@@ -118,7 +118,7 @@ header p,.status,.stage .hint{color:var(--ink)}
 <body>
 <div class="wrap">
   <header>
-    <div class="toprow"><div class="eyebrow"><span>LUCKY PAIR SLOT</span><i></i><span>GIF MAKER</span></div><button class="langBtn" id="langBtn" type="button">EN</button></div>
+    <div class="toprow"><div class="eyebrow"><span>PAIR + SOLO</span><i></i><span>SLOT GIF MAKER</span></div><button class="langBtn" id="langBtn" type="button">EN</button></div>
     <h1>Lucky Slot</h1>
     <p data-i18n="tagline">세 칸이 다 터지면 잭팟. 캐릭터를 넣고 GIF로 저장하세요.</p>
   </header>
@@ -276,7 +276,7 @@ const I18N = {
     three: "세 버전", savedZip: "세 버전을 ZIP으로 저장했어요", saved: "저장했어요", declined: "저장을 취소했어요", made: "GIF를 만들었어요",
     failed: "GIF를 만들다 멈췄어요. 크기를 '가볍게'로 바꾸고 다시 시도해 보세요.", badImage: "이 파일은 이미지로 열 수 없어요. PNG나 JPG로 다시 골라 주세요.",
     sheet: "여기서는 바로 저장이 안 돼요. 이미지를 길게 누르거나 우클릭해서 저장해 주세요.", sheetAria: "GIF 저장", close: "닫기",
-    filePrefix: "슬롯페어틀", zipSuffix: "_3종", langBtn: "EN", langAria: "Switch to English",
+    filePrefix: "LuckySlot", zipSuffix: "_3종", langBtn: "EN", langAria: "Switch to English",
   },
   en: {
     tagline: "Line up all three to hit the jackpot. Add your characters and save it as a GIF.", stage: "Preview", cast: "Cast", pair: "Pair", solo: "Solo", tabs: "Winning version",
@@ -297,7 +297,7 @@ const I18N = {
 };
 const LABELS_EN = {
   theme: { baby: "Baby Pink", sky: "Sky Blue", butter: "Butter Yellow", mint: "Mint Jelly", chrome: "Chrome Silver", cherry: "Cherry Cola", denim: "Denim",
-           lemon: "Lemon Soda", ocean: "Ocean", matcha: "Matcha Latte", grape: "Grape", orange: "Tangerine", latte: "Café Latte", night: "Midnight Blue" },
+           lemon: "Lemon Soda", ocean: "Ocean", matcha: "Matcha Latte", grape: "Grape", orange: "Tangerine", latte: "Café Latte", twilight: "Twilight" },
   metal: { gold: "Gold", silver: "Silver", rose: "Rose Gold", pink: "Pink", sky: "Sky" },
   coin: { star: "Star", heart: "Heart", initial: "Initial chip", face: "Face", clover: "Clover", pixel: "Pixel" },
   center: { heart: "Heart", star: "Star", ribbon: "Ribbon", clover: "Clover", seven: "7", cherry: "Cherry" },
@@ -328,7 +328,7 @@ const THEMES = {
   grape:  { label: "그레이프",    body: "#b9a2ff", ink: "#3a2b8c", accent: "#7ee0d2", bgTop: "#e3dbff", bgBot: "#f8f6ff", charA: "#8f6cf0", charB: "#3fbfae" },
   orange: { label: "귤",          body: "#ffb76e", ink: "#7a3a12", accent: "#ffe27a", bgTop: "#ffefd6", bgBot: "#fffaf2", charA: "#ff8a3d", charB: "#f5c400" },
   latte:  { label: "카페 라떼",   body: "#e8d2b5", ink: "#5a3a22", accent: "#9ccfe0", bgTop: "#f4e7d6", bgBot: "#fffaf4", charA: "#c68b59", charB: "#6fa9c4" },
-  night:  { label: "미드나잇 블루", orb: "#a9b8ff", body: "#3b4a99", ink: "#141a40", accent: "#7cf0ff", bgTop: "#c9d3ff", bgBot: "#eef1ff", charA: "#7cf0ff", charB: "#ffd36b" },
+  twilight: { label: "트와일라잇", body: "#c3c6ff", ink: "#383b8f", accent: "#ffd76a", bgTop: "#d9d2ff", bgBot: "#fff1e6", charA: "#8f93ff", charB: "#ffc94d" },
 };
 const METALS = {
   gold:   { label: "금",       base: "#f7c548", dark: "#c98612", light: "#fff1b3" },
@@ -501,22 +501,45 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "ribbon": {
-      cy -= s * 0.07;   // 꼬리 때문에 아래로 처져 보이는 만큼 위로 보정
-      const c = "#9cc2ff", cd = "#6d8fff";
-      ctx.fillStyle = c;
+      // 🎀 모양: 둥근 고리 두 개 + 가운데 매듭 + 아래로 벌어지는 꼬리(끝은 V자로 파임). 좌우 대칭
+      cy -= s * 0.02;
+      const c = "#9cc2ff", cd = "#6d8fff", cl = "#c9dcff";
+      // 꼬리 (고리 뒤)
       for (const d of [-1, 1]) {
-        ctx.beginPath(); ctx.moveTo(cx + d * s * 0.04, cy + s * 0.04);
-        ctx.lineTo(cx + d * s * 0.16, cy + s * 0.38); ctx.lineTo(cx + d * s * 0.26, cy + s * 0.32); ctx.lineTo(cx + d * s * 0.1, cy + s * 0.02);
+        const ax = cx + d * s * 0.02, ay = cy + s * 0.02, bx = cx + d * s * 0.23, by = cy + s * 0.37;
+        const ux = bx - ax, uy = by - ay, L = Math.hypot(ux, uy), nx = -uy / L, ny = ux / L, hw = s * 0.08;
+        ctx.beginPath();
+        ctx.moveTo(ax + nx * hw, ay + ny * hw);
+        ctx.lineTo(bx + nx * hw, by + ny * hw);
+        ctx.lineTo(bx - ux / L * s * 0.07, by - uy / L * s * 0.07);   // V자 파임
+        ctx.lineTo(bx - nx * hw, by - ny * hw);
+        ctx.lineTo(ax - nx * hw, ay - ny * hw);
         ctx.closePath(); ctx.fillStyle = cd; ctx.fill(); ctx.stroke();
       }
+      // 고리
       for (const d of [-1, 1]) {
-        ctx.beginPath(); ctx.moveTo(cx, cy);
-        ctx.bezierCurveTo(cx + d * s * 0.2, cy - s * 0.34, cx + d * s * 0.46, cy - s * 0.26, cx + d * s * 0.42, cy - s * 0.02);
-        ctx.bezierCurveTo(cx + d * s * 0.4, cy + s * 0.18, cx + d * s * 0.2, cy + s * 0.14, cx, cy);
+        const X = v => cx + d * s * v, Y = v => cy + s * v;
+        ctx.beginPath();
+        ctx.moveTo(X(0.05), Y(-0.07));
+        ctx.bezierCurveTo(X(0.2), Y(-0.36), X(0.5), Y(-0.34), X(0.47), Y(-0.06));
+        ctx.bezierCurveTo(X(0.45), Y(0.16), X(0.2), Y(0.2), X(0.05), Y(0.07));
         ctx.closePath(); ctx.fillStyle = c; ctx.fill(); ctx.stroke();
+        // 고리 안쪽(접힌 면) — 매듭 쪽이 더 진하게
+        ctx.beginPath();
+        ctx.moveTo(X(0.06), Y(-0.04));
+        ctx.bezierCurveTo(X(0.2), Y(-0.16), X(0.3), Y(-0.1), X(0.3), Y(0.0));
+        ctx.bezierCurveTo(X(0.28), Y(0.08), X(0.16), Y(0.08), X(0.06), Y(0.04));
+        ctx.closePath(); ctx.fillStyle = cd; ctx.fill();
+        // 위쪽 광택
+        ctx.beginPath(); ctx.ellipse(X(0.33), Y(-0.2), s * 0.07, s * 0.03, d * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = cl; ctx.fill();
+        gloss(ctx, X(0.38), Y(-0.21), s * 0.035, s * 0.018, d * 0.45);
       }
-      rr(ctx, cx - s * 0.08, cy - s * 0.09, s * 0.16, s * 0.18, s * 0.05); ctx.fillStyle = cd; ctx.fill(); ctx.stroke();
-      for (const d of [-1, 1]) gloss(ctx, cx + d * s * 0.25, cy - s * 0.1, s * 0.06, s * 0.03, d * 0.5);   // 좌우 데칼코마니
+      // 매듭
+      rr(ctx, cx - s * 0.075, cy - s * 0.1, s * 0.15, s * 0.2, s * 0.06);
+      ctx.fillStyle = c; ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - s * 0.03, cy - s * 0.05); ctx.lineTo(cx - s * 0.03, cy + s * 0.05);
+      ctx.lineWidth = Math.max(1, lw * 0.8); ctx.strokeStyle = cd; ctx.stroke(); ctx.lineWidth = lw; ctx.strokeStyle = INK;
       break;
     }
     case "star": {
