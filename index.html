@@ -130,7 +130,7 @@ header p,.status,.stage .hint{color:var(--ink)}
       <div class="tabs" role="group" aria-label="당첨 버전">
         <button class="tab" id="tabA" data-mode="A" aria-pressed="false">A 잭팟</button>
         <button class="tab" id="tabB" data-mode="B" aria-pressed="false">B 잭팟</button>
-        <button class="tab" id="tabPair" data-mode="pair" aria-pressed="true">A♡B</button>
+        <button class="tab" id="tabPair" data-mode="pair" aria-pressed="true">A×B</button>
       </div>
       <div class="canvas-box">
         <canvas id="cv" width="1080" height="1440" aria-label="슬롯머신 미리보기"></canvas>
@@ -1131,7 +1131,7 @@ function scheduleFonts() { clearTimeout(fontTimer); fontTimer = setTimeout(loadF
 function updateLabels() {
   const a = nm("A"), b = nm("B");
   const solo = S.cast === "solo", j = joiner();
-  $("tabA").textContent = `${a} 잭팟`; $("tabB").textContent = `${b} 잭팟`; $("tabPair").textContent = pairName();
+  $("tabA").textContent = `${a} 잭팟`; $("tabB").textContent = `${b} 잭팟`; $("tabPair").textContent = `${a}×${b}`;   // 탭 이름은 가운데 문양과 상관없이 ×
   $("tabB").hidden = $("tabPair").hidden = solo;
   $("makeAll").hidden = solo;
   $("panelB").hidden = $("panelCenter").hidden = solo;
