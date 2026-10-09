@@ -470,24 +470,19 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "heart": {
-      const hy = cy - s * 0.056;
-      heartPath(ctx, cx, hy, s * 0.4);
-      const g = ctx.createLinearGradient(0, cy - s * 0.3, 0, cy + s * 0.31);
-      g.addColorStop(0, "#ffc2de"); g.addColorStop(0.55, "#ff86b8"); g.addColorStop(1, "#f24f8f");
-      ctx.fillStyle = g; ctx.fill();
-      ctx.save(); heartPath(ctx, cx, hy, s * 0.4); ctx.clip();
-      // 오른쪽 아래 그림자 → 동글동글 입체감
-      ctx.beginPath(); ctx.ellipse(cx + s * 0.2, cy + s * 0.2, s * 0.32, s * 0.24, -0.6, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(200,40,110,.22)"; ctx.fill();
-      // 안쪽 볼록한 면 (가운데가 밝게 부푼 느낌)
-      heartPath(ctx, cx - s * 0.02, hy - s * 0.02, s * 0.28);
-      const ig = ctx.createRadialGradient(cx - s * 0.1, cy - s * 0.14, s * 0.02, cx - s * 0.04, cy - s * 0.04, s * 0.32);
-      ig.addColorStop(0, "rgba(255,255,255,.55)"); ig.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = ig; ctx.fill();
-      ctx.restore();
-      heartPath(ctx, cx, hy, s * 0.4); ctx.stroke();
-      gloss(ctx, cx - s * 0.17, cy - s * 0.2, s * 0.085, s * 0.045, -0.7);
-      gloss(ctx, cx + s * 0.17, cy - s * 0.24, s * 0.03, s * 0.03, 0);                // 오른쪽 볼록한 곳 작은 반짝
+      // 별처럼 단순하게(그라데이션 + 외곽선 + 광택 하나), 모양은 가운데 골이 깊은 ❤️
+      const k = s * 0.41, hx = cx, hy = cy - k * 0.1;   // 위아래 끝(약 −0.74, +0.95)의 가운데를 칸 중심에
+      ctx.beginPath();
+      ctx.moveTo(hx, hy + 0.95 * k);
+      ctx.bezierCurveTo(hx - 0.35 * k, hy + 0.62 * k, hx - 0.92 * k, hy + 0.25 * k, hx - 0.9 * k, hy - 0.28 * k);
+      ctx.bezierCurveTo(hx - 0.86 * k, hy - 0.8 * k, hx - 0.2 * k, hy - 0.88 * k, hx, hy - 0.38 * k);
+      ctx.bezierCurveTo(hx + 0.2 * k, hy - 0.88 * k, hx + 0.86 * k, hy - 0.8 * k, hx + 0.9 * k, hy - 0.28 * k);
+      ctx.bezierCurveTo(hx + 0.92 * k, hy + 0.25 * k, hx + 0.35 * k, hy + 0.62 * k, hx, hy + 0.95 * k);
+      ctx.closePath();
+      const g = ctx.createLinearGradient(0, hy - 0.75 * k, 0, hy + 0.95 * k);
+      g.addColorStop(0, "#ffb3d6"); g.addColorStop(1, "#ff5f9f");
+      ctx.fillStyle = g; ctx.fill(); ctx.stroke();
+      gloss(ctx, hx - 0.48 * k, hy - 0.42 * k, s * 0.08, s * 0.042, -0.7);
       break;
     }
     case "cherry": {
