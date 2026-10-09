@@ -567,7 +567,7 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "clover": {
-      // 네잎클로버: 외곽선 있는 줄기 + 바깥이 밝고 가운데로 갈수록 진한 잎 + 잎맥 + 광택
+      // 네잎클로버: 외곽선 있는 줄기 + 바깥이 밝고 가운데로 갈수록 진한 잎 + 광택
       const cl = "#a6efc0", cm = "#5cc785", cdk = "#3a9a5a";
       cy -= s * 0.03;
       ctx.beginPath(); ctx.moveTo(cx, cy + s * 0.04); ctx.quadraticCurveTo(cx + s * 0.08, cy + s * 0.26, cx + s * 0.22, cy + s * 0.38);
@@ -580,9 +580,6 @@ function drawSymbol(ctx, sym, cx, cy, s) {
         const lg = ctx.createLinearGradient(0, -s * 0.42, 0, -s * 0.02);
         lg.addColorStop(0, cl); lg.addColorStop(0.55, cm); lg.addColorStop(1, cdk);
         ctx.fillStyle = lg; ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, -s * 0.06); ctx.lineTo(0, -s * 0.27);             // 잎맥
-        ctx.lineWidth = Math.max(1, lw * 0.7); ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.stroke();
-        ctx.lineWidth = lw; ctx.strokeStyle = INK;
         ctx.restore();
       }
       ctx.beginPath(); ctx.arc(cx, cy, s * 0.035, 0, Math.PI * 2); ctx.fillStyle = cdk; ctx.fill();
