@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>body{margin:0}img{max-width:100%}</style>
-<title>슬롯머신 페어틀</title>
+<title>Lucky Slot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Gowun+Dodum&family=Silkscreen&display=swap">
@@ -37,6 +37,8 @@ header{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
 header h1{font-family:var(--f-display);font-weight:400;font-size:clamp(34px,8vw,52px);line-height:1.1;margin:2px 0 0;color:#fff;
   -webkit-text-stroke:6px var(--ink);paint-order:stroke fill;text-shadow:4px 5px 0 var(--accent);text-wrap:balance}
 header p{margin:0;color:var(--muted)}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.langBtn{font-family:var(--f-pixel);font-size:12px;letter-spacing:.06em;padding:5px 12px;border-radius:999px;border:2px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
 .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
 @media (min-width:900px){
   .layout{grid-template-columns:minmax(0,470px) minmax(0,1fr)}
@@ -116,125 +118,125 @@ header p,.status,.stage .hint{color:var(--ink)}
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow"><span>LUCKY PAIR SLOT</span><i></i><span>GIF MAKER</span></div>
-    <h1>슬롯머신 페어틀</h1>
-    <p>세 칸이 다 터지면 잭팟. 캐릭터를 넣고 GIF로 저장하세요.</p>
+    <div class="toprow"><div class="eyebrow"><span>LUCKY PAIR SLOT</span><i></i><span>GIF MAKER</span></div><button class="langBtn" id="langBtn" type="button">EN</button></div>
+    <h1>Lucky Slot</h1>
+    <p data-i18n="tagline">세 칸이 다 터지면 잭팟. 캐릭터를 넣고 GIF로 저장하세요.</p>
   </header>
 
   <div class="layout">
-    <section class="stage" aria-label="미리보기">
-      <div class="cast" role="group" aria-label="구성">
-        <button class="castBtn" type="button" data-cast="pair" aria-pressed="true">페어</button>
-        <button class="castBtn" type="button" data-cast="solo" aria-pressed="false">1인</button>
+    <section class="stage" aria-label="미리보기" data-i18n-aria="stage">
+      <div class="cast" role="group" aria-label="구성" data-i18n-aria="cast">
+        <button class="castBtn" type="button" data-cast="pair" aria-pressed="true" data-i18n="pair">페어</button>
+        <button class="castBtn" type="button" data-cast="solo" aria-pressed="false" data-i18n="solo">1인</button>
       </div>
-      <div class="tabs" role="group" aria-label="당첨 버전">
+      <div class="tabs" role="group" aria-label="당첨 버전" data-i18n-aria="tabs">
         <button class="tab" id="tabA" data-mode="A" aria-pressed="false">A 잭팟</button>
         <button class="tab" id="tabB" data-mode="B" aria-pressed="false">B 잭팟</button>
         <button class="tab" id="tabPair" data-mode="pair" aria-pressed="true">A×B</button>
       </div>
       <div class="canvas-box">
-        <canvas id="cv" width="1080" height="1440" aria-label="슬롯머신 미리보기"></canvas>
+        <canvas id="cv" width="1080" height="1440" aria-label="슬롯머신 미리보기" data-i18n-aria="canvas"></canvas>
         <button id="playBtn" type="button" aria-label="미리보기 재생">PLAY</button>
       </div>
       <div class="row">
-        <button class="btn primary grow" id="makeOne" type="button">이 버전 GIF 저장</button>
-        <button class="btn grow" id="makeAll" type="button">세 버전 모두 저장</button>
+        <button class="btn primary grow" id="makeOne" type="button" data-i18n="makeOne">이 버전 GIF 저장</button>
+        <button class="btn grow" id="makeAll" type="button" data-i18n="makeAll">세 버전 모두 저장</button>
       </div>
       <div class="row">
-        <label class="hint" for="sizeSel">GIF 크기</label>
+        <label class="hint" for="sizeSel" data-i18n="gifSize">GIF 크기</label>
         <select id="sizeSel">
-          <option value="540">540×720 (기본)</option>
-          <option value="405">405×540 (가볍게)</option>
+          <option value="540" data-i18n="size540">540×720 (기본)</option>
+          <option value="405" data-i18n="size405">405×540 (가볍게)</option>
         </select>
       </div>
       <div class="progress" aria-hidden="true"><i id="bar"></i></div>
-      <div class="status" id="status" role="status">55프레임, 약 3.9초 반복</div>
+      <div class="status" id="status" role="status" data-i18n="statusIdle">55프레임, 약 3.9초 반복</div>
     </section>
 
-    <section class="controls" aria-label="꾸미기">
+    <section class="controls" aria-label="꾸미기" data-i18n-aria="controls">
       <div class="chars">
         <details class="panel" id="panelA" open>
-          <summary><h2><span class="dot" id="dotA"></span>캐릭터 A</h2><span class="sum" id="sumA"></span></summary>
+          <summary><h2><span class="dot" id="dotA"></span><span data-i18n="charA">캐릭터 A</span></h2><span class="sum" id="sumA"></span></summary>
           <div class="panel-body">
-          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="aName" value="A" maxlength="16"></label>
+          <label class="field"><span data-i18n="name">이름 (예시 이름이에요)</span><input type="text" id="aName" value="A" maxlength="16"></label>
           <div class="inline">
-            <label class="field" style="flex:0 0 auto"><span>테마색</span><input type="color" id="aColor" value="#ff6fa5"></label>
-            <div class="field grow"><span>사진</span>
+            <label class="field" style="flex:0 0 auto"><span data-i18n="charColor">테마색</span><input type="color" id="aColor" value="#ff6fa5"></label>
+            <div class="field grow"><span data-i18n="photo">사진</span>
               <div class="inline">
-                <label class="file">사진 고르기<input type="file" id="aFile" accept="image/*"></label>
-                <button class="btn small" id="aClear" type="button" disabled>지우기</button>
+                <label class="file"><span data-i18n="pickPhoto">사진 고르기</span><input type="file" id="aFile" accept="image/*"></label>
+                <button class="btn small" id="aClear" type="button" disabled data-i18n="clear">지우기</button>
               </div>
             </div>
           </div>
           <div class="sliders">
-            <label for="aZoom">확대</label><input type="range" id="aZoom" min="1" max="3" step="0.01" value="1">
-            <label for="aX">좌우</label><input type="range" id="aX" min="-1" max="1" step="0.01" value="0">
-            <label for="aY">위아래</label><input type="range" id="aY" min="-1" max="1" step="0.01" value="0">
+            <label for="aZoom" data-i18n="zoom">확대</label><input type="range" id="aZoom" min="1" max="3" step="0.01" value="1">
+            <label for="aX" data-i18n="moveX">좌우</label><input type="range" id="aX" min="-1" max="1" step="0.01" value="0">
+            <label for="aY" data-i18n="moveY">위아래</label><input type="range" id="aY" min="-1" max="1" step="0.01" value="0">
           </div>
           </div>
         </details>
         <details class="panel" id="panelB" open>
-          <summary><h2><span class="dot" id="dotB"></span>캐릭터 B</h2><span class="sum" id="sumB"></span></summary>
+          <summary><h2><span class="dot" id="dotB"></span><span data-i18n="charB">캐릭터 B</span></h2><span class="sum" id="sumB"></span></summary>
           <div class="panel-body">
-          <label class="field"><span>이름 (예시 이름이에요)</span><input type="text" id="bName" value="B" maxlength="16"></label>
+          <label class="field"><span data-i18n="name">이름 (예시 이름이에요)</span><input type="text" id="bName" value="B" maxlength="16"></label>
           <div class="inline">
-            <label class="field" style="flex:0 0 auto"><span>테마색</span><input type="color" id="bColor" value="#5aa9ff"></label>
-            <div class="field grow"><span>사진</span>
+            <label class="field" style="flex:0 0 auto"><span data-i18n="charColor">테마색</span><input type="color" id="bColor" value="#5aa9ff"></label>
+            <div class="field grow"><span data-i18n="photo">사진</span>
               <div class="inline">
-                <label class="file">사진 고르기<input type="file" id="bFile" accept="image/*"></label>
-                <button class="btn small" id="bClear" type="button" disabled>지우기</button>
+                <label class="file"><span data-i18n="pickPhoto">사진 고르기</span><input type="file" id="bFile" accept="image/*"></label>
+                <button class="btn small" id="bClear" type="button" disabled data-i18n="clear">지우기</button>
               </div>
             </div>
           </div>
           <div class="sliders">
-            <label for="bZoom">확대</label><input type="range" id="bZoom" min="1" max="3" step="0.01" value="1">
-            <label for="bX">좌우</label><input type="range" id="bX" min="-1" max="1" step="0.01" value="0">
-            <label for="bY">위아래</label><input type="range" id="bY" min="-1" max="1" step="0.01" value="0">
+            <label for="bZoom" data-i18n="zoom">확대</label><input type="range" id="bZoom" min="1" max="3" step="0.01" value="1">
+            <label for="bX" data-i18n="moveX">좌우</label><input type="range" id="bX" min="-1" max="1" step="0.01" value="0">
+            <label for="bY" data-i18n="moveY">위아래</label><input type="range" id="bY" min="-1" max="1" step="0.01" value="0">
           </div>
           </div>
         </details>
       </div>
 
       <details class="panel" id="panelCenter" open>
-        <summary><h2>가운데 문양</h2><span class="sum" id="sumCenter"></span></summary>
+        <summary><h2 data-i18n="center">가운데 문양</h2><span class="sum" id="sumCenter"></span></summary>
         <div class="panel-body">
-        <div class="coins" id="centers" role="group" aria-label="페어 버전 가운데 문양"></div>
-        <p class="hint" style="margin:0">페어 버전에서 두 캐릭터 사이 칸에 나올 문양이에요.</p>
+        <div class="coins" id="centers" role="group" aria-label="페어 버전 가운데 문양" data-i18n-aria="centersAria"></div>
+        <p class="hint" style="margin:0" data-i18n="centerHint">페어 버전에서 두 캐릭터 사이 칸에 나올 문양이에요.</p>
         </div>
       </details>
 
       <details class="panel" id="panelText" open>
-        <summary><h2>문구</h2></summary>
+        <summary><h2 data-i18n="text">문구</h2></summary>
         <div class="panel-body">
-        <label class="field"><span>간판 (비우면 두 이름이 들어가요)</span><input type="text" id="title" maxlength="20" placeholder="하루♡새벽"></label>
-        <label class="field"><span>전광판 한 줄</span><input type="text" id="ticker" maxlength="40" value="lucky lucky pair ♡ hit the jackpot"></label>
-        <div class="field"><span>배당표 (당첨된 줄이 깜빡여요)</span>
+        <label class="field"><span data-i18n="sign">간판 (비우면 두 이름이 들어가요)</span><input type="text" id="title" maxlength="20" placeholder="하루♡새벽"></label>
+        <label class="field"><span data-i18n="ticker">전광판 한 줄</span><input type="text" id="ticker" maxlength="40" value="lucky lucky pair ♡ hit the jackpot"></label>
+        <div class="field"><span data-i18n="payout">배당표 (당첨된 줄이 깜빡여요)</span>
           <div class="pay">
-            <em id="payLabelA">A A A</em><input type="text" id="payA" maxlength="18" placeholder="하루 독차지" aria-label="A 세 개 배당 문구">
-            <em id="payLabelB">B B B</em><input type="text" id="payB" maxlength="18" placeholder="새벽 독차지" aria-label="B 세 개 배당 문구">
-            <em id="payLabelPair">A ♡ B</em><input type="text" id="payPair" maxlength="18" placeholder="DOUBLE ♡ JACKPOT" aria-label="A 하트 B 배당 문구">
+            <em id="payLabelA">A A A</em><input type="text" id="payA" maxlength="18" placeholder="하루 독차지" aria-label="A 세 개 배당 문구" data-i18n-aria="payAAria">
+            <em id="payLabelB">B B B</em><input type="text" id="payB" maxlength="18" placeholder="새벽 독차지" aria-label="B 세 개 배당 문구" data-i18n-aria="payBAria">
+            <em id="payLabelPair">A ♡ B</em><input type="text" id="payPair" maxlength="18" placeholder="DOUBLE ♡ JACKPOT" aria-label="A 하트 B 배당 문구" data-i18n-aria="payPairAria">
           </div>
         </div>
         </div>
       </details>
 
       <details class="panel" id="panelColor" open>
-        <summary><h2>슬롯머신 색</h2></summary>
+        <summary><h2 data-i18n="machineColor">슬롯머신 색</h2></summary>
         <div class="panel-body">
-        <div class="swatches" id="themes" role="group" aria-label="슬롯머신 색"></div>
+        <div class="swatches" id="themes" role="group" aria-label="슬롯머신 색" data-i18n-aria="machineColor"></div>
         <div class="inline">
-          <input type="color" id="customColor" value="#7c5cff" aria-label="직접 고른 몸체 색">
-          <button class="btn small" id="useCustom" type="button">이 색으로 칠하기</button>
+          <input type="color" id="customColor" value="#7c5cff" aria-label="직접 고른 몸체 색" data-i18n-aria="customAria">
+          <button class="btn small" id="useCustom" type="button" data-i18n="useCustom">이 색으로 칠하기</button>
         </div>
         </div>
       </details>
 
       <details class="panel" id="panelCoin" open>
-        <summary><h2>동전</h2></summary>
+        <summary><h2 data-i18n="coins">동전</h2></summary>
         <div class="panel-body">
-        <div class="coins" id="coins" role="group" aria-label="동전 디자인"></div>
-        <div class="metals" id="metals" role="group" aria-label="동전 색"></div>
-        <p class="hint" style="margin:0">A♡B 버전에서는 이니셜·얼굴 동전이 두 사람 것으로 번갈아 나와요.</p>
+        <div class="coins" id="coins" role="group" aria-label="동전 디자인" data-i18n-aria="coinsAria"></div>
+        <div class="metals" id="metals" role="group" aria-label="동전 색" data-i18n-aria="metalsAria"></div>
+        <p class="hint" style="margin:0" data-i18n="coinHint">A♡B 버전에서는 이니셜·얼굴 동전이 두 사람 것으로 번갈아 나와요.</p>
         </div>
       </details>
     </section>
@@ -258,6 +260,54 @@ const STRIPS_BY = {
 function strip(i) { return STRIPS_BY[S.cast][i]; }
 function targets(mode) { return mode === "pair" ? ["A", S.center, "B"] : [mode, mode, mode]; }
 const PRESPIN = [3, 5, 2];   // 돌기 전에 당첨 칸에서 각각 이만큼 밀어 둬서 섞인 상태로 시작
+/* ----- 한국어 / English ----- */
+const I18N = {
+  ko: {
+    tagline: "세 칸이 다 터지면 잭팟. 캐릭터를 넣고 GIF로 저장하세요.", stage: "미리보기", cast: "구성", pair: "페어", solo: "1인", tabs: "당첨 버전",
+    canvas: "슬롯머신 미리보기", play: "미리보기 재생", pause: "미리보기 일시정지", makeOne: "이 버전 GIF 저장", makeAll: "세 버전 모두 저장",
+    gifSize: "GIF 크기", size540: "540×720 (기본)", size405: "405×540 (가볍게)", statusIdle: "55프레임, 약 3.9초 반복", controls: "꾸미기",
+    charA: "캐릭터 A", charB: "캐릭터 B", name: "이름 (예시 이름이에요)", charColor: "테마색", photo: "사진", pickPhoto: "사진 고르기", clear: "지우기",
+    zoom: "확대", moveX: "좌우", moveY: "위아래", center: "가운데 문양", centersAria: "페어 버전 가운데 문양",
+    centerHint: "페어 버전에서 두 캐릭터 사이 칸에 나올 문양이에요.", text: "문구", sign: "간판 (비우면 두 이름이 들어가요)", ticker: "전광판 한 줄",
+    payout: "배당표 (당첨된 줄이 깜빡여요)", payAAria: "A 세 개 배당 문구", payBAria: "B 세 개 배당 문구", payPairAria: "A 하트 B 배당 문구",
+    machineColor: "슬롯머신 색", customAria: "직접 고른 몸체 색", useCustom: "이 색으로 칠하기", customChip: "직접 고른 색",
+    coins: "동전", coinsAria: "동전 디자인", metalsAria: "동전 색", coinHint: "A♡B 버전에서는 이니셜·얼굴 동전이 두 사람 것으로 번갈아 나와요.",
+    jackpot: n => `${n} 잭팟`, soloJackpot: n => `${n} 1인 잭팟`, drawing: n => `${n} 그리는 중…`, encoding: n => `${n} GIF로 굽는 중…`, saving: n => `${n} 저장 중…`,
+    three: "세 버전", savedZip: "세 버전을 ZIP으로 저장했어요", saved: "저장했어요", declined: "저장을 취소했어요", made: "GIF를 만들었어요",
+    failed: "GIF를 만들다 멈췄어요. 크기를 '가볍게'로 바꾸고 다시 시도해 보세요.", badImage: "이 파일은 이미지로 열 수 없어요. PNG나 JPG로 다시 골라 주세요.",
+    sheet: "여기서는 바로 저장이 안 돼요. 이미지를 길게 누르거나 우클릭해서 저장해 주세요.", sheetAria: "GIF 저장", close: "닫기",
+    filePrefix: "슬롯페어틀", zipSuffix: "_3종", langBtn: "EN", langAria: "Switch to English",
+  },
+  en: {
+    tagline: "Line up all three to hit the jackpot. Add your characters and save it as a GIF.", stage: "Preview", cast: "Cast", pair: "Pair", solo: "Solo", tabs: "Winning version",
+    canvas: "Slot machine preview", play: "Play preview", pause: "Pause preview", makeOne: "Save this GIF", makeAll: "Save all three",
+    gifSize: "GIF size", size540: "540×720 (default)", size405: "405×540 (light)", statusIdle: "55 frames, about a 3.9s loop", controls: "Customize",
+    charA: "Character A", charB: "Character B", name: "Name", charColor: "Color", photo: "Photo", pickPhoto: "Choose photo", clear: "Remove",
+    zoom: "Zoom", moveX: "Left–right", moveY: "Up–down", center: "Center symbol", centersAria: "Center symbol for the pair version",
+    centerHint: "The symbol that lands between the two characters in the pair version.", text: "Text", sign: "Sign (leave empty to use both names)", ticker: "Scrolling ticker",
+    payout: "Payout table (the winning row blinks)", payAAria: "Payout text for three A", payBAria: "Payout text for three B", payPairAria: "Payout text for A, symbol, B",
+    machineColor: "Machine color", customAria: "Custom body color", useCustom: "Use this color", customChip: "Custom",
+    coins: "Coins", coinsAria: "Coin design", metalsAria: "Coin color", coinHint: "In the pair version, initial and face coins alternate between both characters.",
+    jackpot: n => `${n} Jackpot`, soloJackpot: n => `${n} Solo Jackpot`, drawing: n => `Drawing ${n}…`, encoding: n => `Encoding ${n}…`, saving: n => `Saving ${n}…`,
+    three: "all three", savedZip: "Saved all three as a ZIP", saved: "Saved", declined: "Save canceled", made: "GIF ready",
+    failed: "The GIF stopped partway. Switch the size to “light” and try again.", badImage: "This file can't be opened as an image. Choose a PNG or JPG.",
+    sheet: "Direct saving isn't available here. Long-press or right-click the image to save it.", sheetAria: "Save GIF", close: "Close",
+    filePrefix: "LuckySlot", zipSuffix: "_3pack", langBtn: "한국어", langAria: "한국어로 보기",
+  },
+};
+const LABELS_EN = {
+  theme: { baby: "Baby Pink", sky: "Sky Blue", butter: "Butter Yellow", mint: "Mint Jelly", chrome: "Chrome Silver", cherry: "Cherry Cola", denim: "Denim",
+           lemon: "Lemon Soda", ocean: "Ocean", matcha: "Matcha Latte", grape: "Grape", orange: "Tangerine", latte: "Café Latte", night: "Midnight Blue" },
+  metal: { gold: "Gold", silver: "Silver", rose: "Rose Gold", pink: "Pink", sky: "Sky" },
+  coin: { star: "Star", heart: "Heart", initial: "Initial chip", face: "Face", clover: "Clover", pixel: "Pixel" },
+  center: { heart: "Heart", star: "Star", ribbon: "Ribbon", clover: "Clover", seven: "7", cherry: "Cherry" },
+};
+let LANG = "ko";
+try { LANG = localStorage.getItem("slotLang") || ((navigator.language || "").toLowerCase().startsWith("ko") ? "ko" : "en"); } catch (e) { LANG = (navigator.language || "").toLowerCase().startsWith("ko") ? "ko" : "en"; }
+if (!I18N[LANG]) LANG = "ko";
+function t(key, arg) { const v = I18N[LANG][key]; return typeof v === "function" ? v(arg) : v; }
+function lab(kind, key, ko) { return LANG === "en" ? (LABELS_EN[kind][key] || ko) : ko; }   // 색·동전·문양 이름
+
 const TICKER_DEFAULT = { pair: "lucky lucky pair ♡ hit the jackpot", solo: "lucky lucky me ♡ hit the jackpot" };
 const CENTERS = { heart: "하트", star: "별", ribbon: "리본", clover: "클로버", seven: "7", cherry: "체리" };
 const REEL_X = [77, 199, 321], REEL_Y = 268, REEL_W = 112, REEL_H = 184, CELL = 104;
@@ -278,7 +328,7 @@ const THEMES = {
   grape:  { label: "그레이프",    body: "#b9a2ff", ink: "#3a2b8c", accent: "#7ee0d2", bgTop: "#e3dbff", bgBot: "#f8f6ff", charA: "#8f6cf0", charB: "#3fbfae" },
   orange: { label: "귤",          body: "#ffb76e", ink: "#7a3a12", accent: "#ffe27a", bgTop: "#ffefd6", bgBot: "#fffaf2", charA: "#ff8a3d", charB: "#f5c400" },
   latte:  { label: "카페 라떼",   body: "#e8d2b5", ink: "#5a3a22", accent: "#9ccfe0", bgTop: "#f4e7d6", bgBot: "#fffaf4", charA: "#c68b59", charB: "#6fa9c4" },
-  night:  { label: "미드나잇 블루", body: "#3b4a99", ink: "#141a40", accent: "#7cf0ff", bgTop: "#c9d3ff", bgBot: "#eef1ff", charA: "#7cf0ff", charB: "#ffd36b" },
+  night:  { label: "미드나잇 블루", orb: "#a9b8ff", body: "#3b4a99", ink: "#141a40", accent: "#7cf0ff", bgTop: "#c9d3ff", bgBot: "#eef1ff", charA: "#7cf0ff", charB: "#ffd36b" },
 };
 const METALS = {
   gold:   { label: "금",       base: "#f7c548", dark: "#c98612", light: "#fff1b3" },
@@ -617,11 +667,6 @@ const BULBS = (() => {
 })();
 const WIN_DOTS = Array.from({ length: 19 }, (_, i) => 86 + i * 338 / 18);
 const ORBS = [[44, 262, 58, 0], [498, 128, 46, 1], [490, 548, 66, 0], [50, 612, 40, 1]];
-const SPARKLES = [   // [x, y, 크기] — 움직이지 않는 배경 장식. 비눗방울 사이 빈 곳에 크기를 달리해 배치
-  [462, 80, 28],    // 오른쪽 위 (비눗방울 옆)
-  [34, 438, 22],    // 왼쪽 가운데 (두 비눗방울 사이)
-  [508, 452, 17],   // 오른쪽 가운데 아래 (레버 아래)
-];
 const COINS = (() => {
   const r = mulberry32(20261008), a = [];
   for (let i = 0; i < 30; i++) a.push({ t0: TL.win + 0.02 + r() * 0.17, vx: (r() - 0.5) * 560, vy: -(600 + r() * 380), rad: 15 + r() * 7, a0: r() * 6.28, w: (5 + r() * 7) * (r() < 0.5 ? -1 : 1) });
@@ -776,6 +821,7 @@ function render(ctx, t, sc, mode) {
   let g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, th.bgTop); g.addColorStop(1, th.bgBot);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.save(); rr(ctx, 12, 12, 516, 696, 16); ctx.clip();   // 격자·비눗방울은 포스터 테두리 안쪽에만
   ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 1;
   ctx.beginPath();
   for (let x = 18; x < W; x += 36) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); }
@@ -783,9 +829,11 @@ function render(ctx, t, sc, mode) {
   ctx.stroke();
   for (const [x, y, r, k] of ORBS) {
     const rg = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.05, x, y, r);
-    rg.addColorStop(0, "rgba(255,255,255,.95)"); rg.addColorStop(0.55, rgba(k ? th.accent : th.body, 0.35)); rg.addColorStop(1, rgba(k ? th.accent : th.body, 0.12));
+    rg.addColorStop(0, "rgba(255,255,255,.95)"); const oc = k ? th.accent : (th.orb || th.body);   // 몸체가 진한 테마는 비눗방울만 밝은 색(orb)으로
+    rg.addColorStop(0.55, rgba(oc, 0.35)); rg.addColorStop(1, rgba(oc, 0.12));
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = rg; ctx.fill();
   }
+  ctx.restore();
   // 포스터 테두리 + 구석 글자
   rr(ctx, 12, 12, 516, 696, 16); ctx.lineWidth = 1.5; ctx.strokeStyle = rgba(th.ink, 0.55); ctx.stroke();
   ctx.fillStyle = th.ink; ctx.textBaseline = "middle";
@@ -804,9 +852,6 @@ function render(ctx, t, sc, mode) {
     const w = ctx.measureText("CREDIT 777").width;
     ctx.save(); ctx.translate(514 - w / 2, 694 + jump); ctx.scale(1 + a, 1 - a * 0.6);
     ctx.textAlign = "center"; ctx.fillText("CREDIT 777", 0, 0); ctx.restore();
-  }
-  for (const [x, y, s] of SPARKLES) {
-    sparkle(ctx, x, y, s); ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.lineWidth = 1.8; ctx.strokeStyle = th.ink; ctx.stroke();
   }
 
   // 슬롯머신 전체를 오른쪽으로 15px 옮겨 몸체를 캔버스 가운데(270)에 맞춤
@@ -1148,7 +1193,7 @@ $("playBtn").onclick = () => {
   playing = !playing;
   if (playing) t0 = performance.now();   // 재생은 늘 처음부터, 멈추면 결과 칸 장면으로
   $("playBtn").textContent = playing ? "PAUSE" : "PLAY";
-  $("playBtn").setAttribute("aria-label", playing ? "미리보기 일시정지" : "미리보기 재생"); dirty = true;
+  $("playBtn").setAttribute("aria-label", playing ? t("pause") : t("play")); dirty = true;
 };
 
 function allText() { return [titleText(), S.ticker, payText("A"), payText("B"), payText("pair"), nm("A"), nm("B"), "JACKPOT! LUCKY PAIR SLOT VER. A B × ☆ ♡ ♥ ✦ INSERT COIN payout.exe WINS IT ALL DOUBLE SEVEN SUPER STAR 7 =!"].join(" "); }
@@ -1164,14 +1209,14 @@ function scheduleFonts() { clearTimeout(fontTimer); fontTimer = setTimeout(loadF
 function updateLabels() {
   const a = nm("A"), b = nm("B");
   const solo = S.cast === "solo", j = joiner();
-  $("tabA").textContent = `${a} 잭팟`; $("tabB").textContent = `${b} 잭팟`; $("tabPair").textContent = `${a}×${b}`;   // 탭 이름은 가운데 문양과 상관없이 ×
+  $("tabA").textContent = t("jackpot", a); $("tabB").textContent = t("jackpot", b); $("tabPair").textContent = `${a}×${b}`;   // 탭 이름은 가운데 문양과 상관없이 ×
   $("tabB").hidden = $("tabPair").hidden = solo;
   $("makeAll").hidden = solo;
   $("panelB").hidden = $("panelCenter").hidden = solo;
   for (const id of ["payLabelB", "payB", "payLabelPair", "payPair"]) $(id).hidden = solo;
   $("payLabelPair").textContent = `${initial("A")} ${j} ${initial("B")}`;
   $("payPair").placeholder = `DOUBLE ${j} JACKPOT`;
-  $("sumA").textContent = a; $("sumB").textContent = b; $("sumCenter").textContent = CENTERS[S.center];
+  $("sumA").textContent = a; $("sumB").textContent = b; $("sumCenter").textContent = lab("center", S.center, CENTERS[S.center]);
   $("payLabelA").textContent = `${initial("A")} ${initial("A")} ${initial("A")}`;
   $("payLabelB").textContent = `${initial("B")} ${initial("B")} ${initial("B")}`;
   $("payA").placeholder = `${a} WINS IT ALL`; $("payB").placeholder = `${b} WINS IT ALL`;
@@ -1201,7 +1246,8 @@ document.querySelectorAll(".castBtn").forEach(btn => btn.onclick = () => {
 const centerChips = {};
 function buildCenters() {
   const el = $("centers"); el.innerHTML = "";
-  for (const [key, label] of Object.entries(CENTERS)) {
+  for (const [key, ko] of Object.entries(CENTERS)) {
+    const label = lab("center", key, ko);
     const b = document.createElement("button"); b.type = "button"; b.className = "coin";
     b.setAttribute("aria-pressed", String(S.center === key));
     const c = document.createElement("canvas"); c.width = 104; c.height = 104;
@@ -1248,7 +1294,7 @@ for (const [key, p] of [["A", "a"], ["B", "b"]]) {
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       ch.img = c; URL.revokeObjectURL(url); $(p + "Clear").disabled = false; changed();
     };
-    img.onerror = () => { URL.revokeObjectURL(url); toast("이 파일은 이미지로 열 수 없어요. PNG나 JPG로 다시 골라 주세요."); };
+    img.onerror = () => { URL.revokeObjectURL(url); toast(t("badImage")); };
     img.src = url; e.target.value = "";
   });
   $(p + "Clear").onclick = () => { ch.img = null; $(p + "Clear").disabled = true; changed(); };
@@ -1263,14 +1309,14 @@ function buildThemes() {
     const b = document.createElement("button"); b.type = "button"; b.className = "swatch";
     b.setAttribute("aria-pressed", String(S.theme === key));
     const i = document.createElement("i"); i.style.background = `linear-gradient(135deg, ${th.body} 0 55%, ${th.accent} 55% 100%)`;
-    b.append(i, document.createTextNode(th.label));
+    b.append(i, document.createTextNode(lab("theme", key, th.label)));
     b.onclick = () => { S.theme = key; buildThemes(); syncCharColors(); changed(); };
     themesEl.append(b);
   }
   const b = document.createElement("button"); b.type = "button"; b.className = "swatch";
   b.setAttribute("aria-pressed", String(S.theme === "custom"));
   const i = document.createElement("i"); i.style.background = `linear-gradient(135deg, ${S.custom} 0 55%, ${theme().accent} 55% 100%)`;
-  b.append(i, document.createTextNode("직접 고른 색"));
+  b.append(i, document.createTextNode(t("customChip")));
   b.onclick = () => { S.theme = "custom"; buildThemes(); syncCharColors(); changed(); };
   themesEl.append(b);
 }
@@ -1281,7 +1327,8 @@ $("useCustom").onclick = () => { S.theme = "custom"; buildThemes(); syncCharColo
 const coinChips = {};
 function buildCoins() {
   const el = $("coins"); el.innerHTML = "";
-  for (const [key, label] of Object.entries(COIN_DESIGNS)) {
+  for (const [key, ko] of Object.entries(COIN_DESIGNS)) {
+    const label = lab("coin", key, ko);
     const b = document.createElement("button"); b.type = "button"; b.className = "coin";
     b.setAttribute("aria-pressed", String(S.coin === key));
     const c = document.createElement("canvas"); c.width = 104; c.height = 104;
@@ -1294,7 +1341,7 @@ function buildCoins() {
     const b = document.createElement("button"); b.type = "button"; b.className = "metal";
     b.setAttribute("aria-pressed", String(S.metal === key));
     const i = document.createElement("i"); i.style.background = m.base;
-    b.append(i, document.createTextNode(m.label));
+    b.append(i, document.createTextNode(lab("metal", key, m.label)));
     b.onclick = () => { S.metal = key; buildCoins(); changed(); };
     ml.append(b);
   }
@@ -1320,10 +1367,10 @@ function showSheet(gifs) {
   return new Promise(resolve => {
     const urls = gifs.map(g => URL.createObjectURL(g.blob));
     const wrap = document.createElement("div"); wrap.className = "sheet";
-    const card = document.createElement("div"); card.className = "sheet-card"; card.setAttribute("role", "dialog"); card.setAttribute("aria-label", "GIF 저장");
+    const card = document.createElement("div"); card.className = "sheet-card"; card.setAttribute("role", "dialog"); card.setAttribute("aria-label", t("sheetAria"));
     const imgs = urls.map((u, i) => { const img = document.createElement("img"); img.src = u; img.alt = `${gifs[i].label} GIF`; return img; });
-    const p = document.createElement("p"); p.textContent = "여기서는 바로 저장이 안 돼요. 이미지를 길게 누르거나 우클릭해서 저장해 주세요.";
-    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn"; btn.textContent = "닫기";
+    const p = document.createElement("p"); p.textContent = t("sheet");
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn"; btn.textContent = t("close");
     btn.onclick = () => { wrap.remove(); urls.forEach(u => URL.revokeObjectURL(u)); resolve(); };
     card.style.maxHeight = "90vh"; card.style.overflowY = "auto";
     card.append(...imgs, p, btn); wrap.append(card); document.body.append(wrap); btn.focus();
@@ -1380,7 +1427,7 @@ async function deliver(item, gifs, retried) {
 }
 
 const MODE_ORDER = ["A", "B", "pair"];
-function modeLabel(m) { return S.cast === "solo" ? `${nm("A")} 1인 잭팟` : m === "pair" ? `${nm("A")}×${nm("B")}` : `${nm(m)} 잭팟`; }   // 페이지·파일 이름은 탭과 같은 ×
+function modeLabel(m) { return S.cast === "solo" ? t("soloJackpot", nm("A")) : m === "pair" ? `${nm("A")}×${nm("B")}` : t("jackpot", nm(m)); }   // 페이지·파일 이름은 탭과 같은 ×
 function safeName(s) { return s.replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40); }
 const tick = () => new Promise(r => setTimeout(r, 0));
 
@@ -1391,17 +1438,17 @@ async function makeGif(mode, step, steps) {
   const ctx = c.getContext("2d", { willReadFrequently: true });
   const frames = [];
   const prog = (part, i) => { $("bar").style.width = ((step + (part * 0.5 + i / NF * 0.5)) / steps * 100).toFixed(1) + "%"; };
-  $("status").textContent = `${modeLabel(mode)} 그리는 중…`;
+  $("status").textContent = t("drawing", modeLabel(mode));
   for (let i = 0; i < NF; i++) {
     render(ctx, i / NF, sc, mode);
     frames.push(ctx.getImageData(0, 0, w, h).data);
     prog(0, i + 1); if (i % 4 === 3) await tick();
   }
-  $("status").textContent = `${modeLabel(mode)} GIF로 굽는 중…`;
+  $("status").textContent = t("encoding", modeLabel(mode));
   await tick();
   const bytes = await encodeGif(frames, w, h, DELAY, async i => { prog(1, i); if (i % 4 === 0) await tick(); });
   const blob = new Blob([bytes], { type: "image/gif" });
-  return { blob, bytes, label: modeLabel(mode), filename: `슬롯페어틀_${safeName(modeLabel(mode))}.gif` };
+  return { blob, bytes, label: modeLabel(mode), filename: `${t("filePrefix")}_${safeName(modeLabel(mode))}.gif` };
 }
 async function run(modes) {
   if (busy) return;
@@ -1412,16 +1459,16 @@ async function run(modes) {
     for (let s = 0; s < modes.length; s++) gifs.push(await makeGif(modes[s], s, modes.length));
     // 여러 개는 저장 창이 한 번만 뜨도록 ZIP 하나로 묶음
     const item = gifs.length > 1
-      ? { blob: makeZip(gifs.map((g, i) => ({ name: `${i + 1}_${g.filename}`, data: g.bytes }))), label: "세 버전", filename: `슬롯페어틀_${safeName(`${nm("A")}×${nm("B")}`)}_3종.zip` }
+      ? { blob: makeZip(gifs.map((g, i) => ({ name: `${i + 1}_${g.filename}`, data: g.bytes }))), label: t("three"), filename: `${t("filePrefix")}_${safeName(`${nm("A")}×${nm("B")}`)}${t("zipSuffix")}.zip` }
       : gifs[0];
-    $("status").textContent = `${item.label} 저장 중…`;
+    $("status").textContent = t("saving", item.label);
     const outcome = await deliver(item, gifs);
     $("bar").style.width = "100%";
-    $("status").textContent = outcome === "saved" ? (gifs.length > 1 ? "세 버전을 ZIP으로 저장했어요" : "저장했어요")
-      : outcome === "declined" ? "저장을 취소했어요" : "GIF를 만들었어요";
+    $("status").textContent = outcome === "saved" ? (gifs.length > 1 ? t("savedZip") : t("saved"))
+      : outcome === "declined" ? t("declined") : t("made");
   } catch (e) {
     console.error(e);
-    $("status").textContent = "GIF를 만들다 멈췄어요. 크기를 '가볍게'로 바꾸고 다시 시도해 보세요.";
+    $("status").textContent = t("failed");
   } finally {
     busy = false; dirty = true; $("makeOne").disabled = $("makeAll").disabled = false;
   }
@@ -1437,7 +1484,21 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
 }
 
-buildThemes(); buildCoins(); buildCenters(); syncCharColors(); applyPageTheme(); updateLabels(); loadFonts();
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  $("playBtn").setAttribute("aria-label", playing ? t("pause") : t("play"));
+  $("langBtn").textContent = t("langBtn"); $("langBtn").setAttribute("aria-label", t("langAria"));
+}
+$("langBtn").onclick = () => {
+  if (busy) return;
+  LANG = LANG === "ko" ? "en" : "ko";
+  try { localStorage.setItem("slotLang", LANG); } catch (e) { /* 저장 못 해도 이번 화면엔 적용됨 */ }
+  applyI18n(); buildThemes(); buildCoins(); buildCenters(); updateLabels();
+};
+
+buildThemes(); buildCoins(); buildCenters(); syncCharColors(); applyPageTheme(); applyI18n(); updateLabels(); loadFonts();
 requestAnimationFrame(frame);
 })();
 </script>
