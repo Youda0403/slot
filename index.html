@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>body{margin:0}img{max-width:100%}</style>
-<title>Lucky Slot</title>
+<title>LUCKY SLOT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Gowun+Dodum&family=Silkscreen&display=swap">
@@ -119,7 +119,7 @@ header p,.status,.stage .hint{color:var(--ink)}
 <div class="wrap">
   <header>
     <div class="toprow"><div class="eyebrow"><span>PAIR + SOLO</span><i></i><span>SLOT GIF MAKER</span></div><button class="langBtn" id="langBtn" type="button">EN</button></div>
-    <h1>Lucky Slot</h1>
+    <h1>LUCKY SLOT</h1>
     <p data-i18n="tagline">세 칸이 다 터지면 잭팟. 캐릭터를 넣고 GIF로 저장하세요.</p>
   </header>
 
@@ -478,7 +478,8 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "cherry": {
-      ctx.strokeStyle = "#47a35a"; ctx.lineWidth = lw * 1.4;
+      const leafGreen = "#4cae60";   // 줄기와 잎을 같은 초록으로
+      ctx.strokeStyle = leafGreen; ctx.lineWidth = lw * 1.4;
       ctx.beginPath();
       ctx.moveTo(cx - s * 0.18, cy + s * 0.06); ctx.quadraticCurveTo(cx - s * 0.05, cy - s * 0.2, cx + s * 0.1, cy - s * 0.32);
       ctx.moveTo(cx + s * 0.16, cy + s * 0.1); ctx.quadraticCurveTo(cx + s * 0.2, cy - s * 0.1, cx + s * 0.1, cy - s * 0.32);
@@ -487,7 +488,7 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       ctx.beginPath(); ctx.moveTo(tx, ty);
       ctx.quadraticCurveTo(cx + s * 0.2, cy - s * 0.47, cx + s * 0.37, cy - s * 0.38);
       ctx.quadraticCurveTo(cx + s * 0.25, cy - s * 0.25, tx, ty);
-      ctx.closePath(); ctx.fillStyle = "#5cbf6c"; ctx.fill();
+      ctx.closePath(); ctx.fillStyle = leafGreen; ctx.fill();
       ctx.beginPath(); ctx.moveTo(tx + s * 0.03, ty - s * 0.015); ctx.quadraticCurveTo(cx + s * 0.22, cy - s * 0.36, cx + s * 0.33, cy - s * 0.375);
       ctx.lineWidth = Math.max(1, lw * 0.7); ctx.strokeStyle = "rgba(255,255,255,.65)"; ctx.stroke();
       ctx.lineWidth = lw; ctx.strokeStyle = INK;
@@ -551,16 +552,27 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "clover": {
-      ctx.strokeStyle = "#3f9a5c"; ctx.lineWidth = lw * 1.6;
-      ctx.beginPath(); ctx.moveTo(cx, cy + s * 0.02); ctx.quadraticCurveTo(cx + s * 0.1, cy + s * 0.25, cx + s * 0.24, cy + s * 0.36); ctx.stroke();
+      // 네잎클로버: 외곽선 있는 줄기 + 바깥이 밝고 가운데로 갈수록 진한 잎 + 잎맥 + 광택
+      const cl = "#a6efc0", cm = "#5cc785", cdk = "#3a9a5a";
+      cy -= s * 0.03;
+      ctx.beginPath(); ctx.moveTo(cx, cy + s * 0.04); ctx.quadraticCurveTo(cx + s * 0.08, cy + s * 0.26, cx + s * 0.22, cy + s * 0.38);
+      ctx.lineWidth = lw * 3.6; ctx.strokeStyle = INK; ctx.stroke();
+      ctx.lineWidth = lw * 1.6; ctx.strokeStyle = cm; ctx.stroke();
       ctx.lineWidth = lw; ctx.strokeStyle = INK;
       for (let k = 0; k < 4; k++) {
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(k * Math.PI / 2 + Math.PI / 4);
-        heartPath(ctx, 0, -s * 0.21, s * 0.19);
-        ctx.fillStyle = "#7fd9a4"; ctx.fill(); ctx.stroke();
+        heartPath(ctx, 0, -s * 0.215, s * 0.2);
+        const lg = ctx.createLinearGradient(0, -s * 0.42, 0, -s * 0.02);
+        lg.addColorStop(0, cl); lg.addColorStop(0.55, cm); lg.addColorStop(1, cdk);
+        ctx.fillStyle = lg; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -s * 0.06); ctx.lineTo(0, -s * 0.27);             // 잎맥
+        ctx.lineWidth = Math.max(1, lw * 0.7); ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.stroke();
+        ctx.lineWidth = lw; ctx.strokeStyle = INK;
         ctx.restore();
       }
-      gloss(ctx, cx - s * 0.17, cy - s * 0.13, s * 0.05, s * 0.025, -0.7);
+      ctx.beginPath(); ctx.arc(cx, cy, s * 0.035, 0, Math.PI * 2); ctx.fillStyle = cdk; ctx.fill();
+      gloss(ctx, cx - s * 0.24, cy - s * 0.15, s * 0.045, s * 0.022, -0.6);   // 왼쪽 위 잎의 두 볼록한 곳에 광택
+      gloss(ctx, cx - s * 0.15, cy - s * 0.24, s * 0.045, s * 0.022, -1.0);
       break;
     }
   }
@@ -897,7 +909,7 @@ function render(ctx, t, sc, mode) {
   ctx.beginPath(); ctx.moveTo(109, 210); ctx.lineTo(109, 152); ctx.ellipse(255, 152, 146, 86, 0, Math.PI, Math.PI * 2); ctx.lineTo(401, 210); ctx.closePath();
   ctx.fillStyle = th.soft; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = th.ink; ctx.stroke();
   BULBS.forEach(([x, y], k) => {
-    const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : ((k + f) % 3 === 0);
+    const lit = win ? ((k + Math.floor(wf / 2)) % 2 === 0) : true;   // 결과 전엔 모두 켜진 채 고정, 당첨 때만 깜빡
     const r = k % 2 ? 4.2 : 5.6;                       // 큰 전구·작은 전구 번갈아
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
     if (lit) { ctx.shadowColor = "#ffffff"; ctx.shadowBlur = r * 1.6; ctx.fillStyle = "#fffbe6"; }
