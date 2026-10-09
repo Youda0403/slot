@@ -470,11 +470,24 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       break;
     }
     case "heart": {
-      heartPath(ctx, cx, cy - s * 0.056, s * 0.4);
+      const hy = cy - s * 0.056;
+      heartPath(ctx, cx, hy, s * 0.4);
       const g = ctx.createLinearGradient(0, cy - s * 0.3, 0, cy + s * 0.31);
-      g.addColorStop(0, "#ffb3d6"); g.addColorStop(1, "#ff5f9f");
-      ctx.fillStyle = g; ctx.fill(); ctx.stroke();
-      gloss(ctx, cx - s * 0.16, cy - s * 0.196, s * 0.08, s * 0.045, -0.7);
+      g.addColorStop(0, "#ffc2de"); g.addColorStop(0.55, "#ff86b8"); g.addColorStop(1, "#f24f8f");
+      ctx.fillStyle = g; ctx.fill();
+      ctx.save(); heartPath(ctx, cx, hy, s * 0.4); ctx.clip();
+      // 오른쪽 아래 그림자 → 동글동글 입체감
+      ctx.beginPath(); ctx.ellipse(cx + s * 0.2, cy + s * 0.2, s * 0.32, s * 0.24, -0.6, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(200,40,110,.22)"; ctx.fill();
+      // 안쪽 볼록한 면 (가운데가 밝게 부푼 느낌)
+      heartPath(ctx, cx - s * 0.02, hy - s * 0.02, s * 0.28);
+      const ig = ctx.createRadialGradient(cx - s * 0.1, cy - s * 0.14, s * 0.02, cx - s * 0.04, cy - s * 0.04, s * 0.32);
+      ig.addColorStop(0, "rgba(255,255,255,.55)"); ig.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = ig; ctx.fill();
+      ctx.restore();
+      heartPath(ctx, cx, hy, s * 0.4); ctx.stroke();
+      gloss(ctx, cx - s * 0.17, cy - s * 0.2, s * 0.085, s * 0.045, -0.7);
+      gloss(ctx, cx + s * 0.17, cy - s * 0.24, s * 0.03, s * 0.03, 0);                // 오른쪽 볼록한 곳 작은 반짝
       break;
     }
     case "cherry": {
@@ -491,6 +504,13 @@ function drawSymbol(ctx, sym, cx, cy, s) {
       ctx.closePath(); ctx.fillStyle = leafGreen; ctx.fill();
       ctx.beginPath(); ctx.moveTo(tx + s * 0.03, ty - s * 0.015); ctx.quadraticCurveTo(cx + s * 0.22, cy - s * 0.36, cx + s * 0.33, cy - s * 0.375);
       ctx.lineWidth = Math.max(1, lw * 0.7); ctx.strokeStyle = "rgba(255,255,255,.65)"; ctx.stroke();
+      // 두 번째 잎: 같은 끝에서 왼쪽 위로, 조금 작게
+      ctx.beginPath(); ctx.moveTo(tx, ty);
+      ctx.quadraticCurveTo(tx - s * 0.04, ty - s * 0.17, tx - s * 0.2, ty - s * 0.15);
+      ctx.quadraticCurveTo(tx - s * 0.14, ty - s * 0.02, tx, ty);
+      ctx.closePath(); ctx.fillStyle = leafGreen; ctx.fill();
+      ctx.beginPath(); ctx.moveTo(tx - s * 0.02, ty - s * 0.03); ctx.quadraticCurveTo(tx - s * 0.08, ty - s * 0.1, tx - s * 0.17, ty - s * 0.13);
+      ctx.stroke();
       ctx.lineWidth = lw; ctx.strokeStyle = INK;
       for (const [dx, dy] of [[-0.19, 0.18], [0.16, 0.22]]) {
         ctx.beginPath(); ctx.arc(cx + s * dx, cy + s * dy, s * 0.17, 0, Math.PI * 2);
