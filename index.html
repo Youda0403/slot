@@ -875,10 +875,13 @@ function render(ctx, t, sc, mode) {
   ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.lineJoin = "round"; ctx.lineCap = "round";
 
   // 배경: 하늘 그라데이션 + 격자 + 비눗방울
+  // 테두리 바깥 여백은 한 가지 색으로 칠함. 그라데이션을 깔면 GIF 256색으로 줄일 때 띠(얼룩)가 생겨
+  // 비눗방울 색이 번진 것처럼 보였음 → 그라데이션·격자·비눗방울은 모두 테두리 안쪽에만
+  ctx.fillStyle = th.bgBot; ctx.fillRect(0, 0, W, H);
+  ctx.save(); rr(ctx, 12, 12, 516, 696, 16); ctx.clip();
   let g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, th.bgTop); g.addColorStop(1, th.bgBot);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  ctx.save(); rr(ctx, 12, 12, 516, 696, 16); ctx.clip();   // 격자·비눗방울은 포스터 테두리 안쪽에만
   ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 1;
   ctx.beginPath();
   for (let x = 18; x < W; x += 36) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); }
